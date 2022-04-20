@@ -1,0 +1,105 @@
+﻿@using static BlazorShop.Extensions.SessionExtension
+@inject ProtectedLocalStorage cartStorage
+@implements IDisposable
+
+<div class="top-row pl-4 navbar navbar-dark">
+    <a class="navbar-brand" href="">BlazorShop</a>
+    <button class="navbar-toggler" @onclick="ToggleNavMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <ul class="nav flex-column">
+        <li class="nav-item px-3">
+            <AuthorizeView>
+                <NotAuthorized>
+                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                        <span class="oi oi-home" aria-hidden="true"></span> Home
+                    </NavLink>
+                </NotAuthorized>
+            </AuthorizeView>
+        </li>
+        @*Урок 11 (5)*@
+        @*<AuthorizeView Roles="@StaticData.AdminRole">*@
+        @*Урок 2 (1) ----------------------------------------------*@
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="category">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Category
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="specialtag">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Special Tag
+            </NavLink>
+        </li>
+        @*---------------------------------------------------------*@
+        @*Урок 5 (2) ----------------------------------------------*@
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="product">
+                <span class="oi oi-aperture" aria-hidden="true"></span> Product
+            </NavLink>
+        </li>
+        @*---------------------------------------------------------*@
+        @*</AuthorizeView>*@
+
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="appointments">
+                <span class="oi oi-aperture" aria-hidden="true"></span> Appointments
+            </NavLink>
+        </li>
+
+        @*<AuthorizeView Roles="@StaticData.UserRole">*@
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="admin/rolemanager">
+                <span class="oi oi-plus" aria-hidden="true"></span> Role Manager
+            </NavLink>
+        </li>
+        
+        <div class="text-white text-center">
+            <NavLink href="/shoppingcart">
+                <span class="oi oi-cart cart-icon"></span> <label class="cart">@productCount</label>
+            </NavLink>
+        </div>
+        @*</AuthorizeView>*@
+
+
+    </ul>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    List<int> shoppingCartList = new();
+    int productCount = 0;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    protected override void OnInitialized()
+    {
+        SessionExtension.NotyfyChanges += ShowChanges;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            shoppingCartList = await cartStorage.GetFromSession<List<int>>(StaticData.SessionKey);
+            productCount = (shoppingCartList is not null && shoppingCartList.Count > 0) ? shoppingCartList.Count : 0;
+            StateHasChanged();
+        }
+    }
+
+    void ShowChanges(int count)
+    {
+        productCount = count;
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose() => SessionExtension.NotyfyChanges -= ShowChanges;
+}

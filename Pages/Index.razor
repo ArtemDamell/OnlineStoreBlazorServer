@@ -1,0 +1,55 @@
+﻿@page "/"
+@inject ProductService _db
+
+<div class="row p-4 border rounded">
+    @if (products is null)
+    {
+        <div class="row">
+            <div class="col text-center">
+                <img src="https://cdn.dribbble.com/users/108183/screenshots/5331825/loading_xxi.gif" height="200" />
+            </div>
+        </div>
+    }
+else if (products.Count > 0)
+    {
+        @foreach (var item in products)
+        {
+            <div class="col-sm-12 col-md-6 col-lg-3">
+                <div class="card mb-3" style="max-width: 18rem;">
+                    <div class="card-header text-center text-primary font-weight-bold">@item.Name</div>
+                    <div class="card-body text-center">
+                        <img src="@item.Image.ImageToDisplayConverter()" class="img-fluid" style="height: 150px" />
+                    </div>
+                    <div class="card-footer">
+                        <div class="row d-flex align-items-center">
+                            <div class="col-12 text-center my-2">
+                                <span class="text-primary font-weight-bold">@string.Format("{0:C}", item.Price)</span>
+                            </div>
+                            <div class="col-12 text-center">
+                                <a class="btn btn-success form-control" href="/details/@item.Id">Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="row">
+            <div class="col text-center">
+                <img src="https://cdn.dribbble.com/users/1231865/screenshots/11157048/media/bc9427646c632ded563ee076fdc5dfda.jpg?compress=1&resize=800x600" height="200" />
+            </div>
+        </div>
+    }
+
+</div>
+
+@code {
+    List<Product> products = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await _db.GetAllProductsAsync();
+    }
+} 

@@ -1,0 +1,73 @@
+﻿@*Урок 6 (1)*@
+@*Урок 6 (1.1)*@
+@page "/details/{ProductId:int}"
+@inject ProductService _db
+
+@inject ProtectedLocalStorage cartStorage
+@*Урок 6 (5.1)*@
+<h1 class="text-info mt-2">Appointment details</h1>
+
+@if (currentProduct is null)
+{
+	<div class="row">
+		<div class="col text-center">
+			<img src="https://cdn.dribbble.com/users/108183/screenshots/5331825/loading_xxi.gif" height="200" />
+		</div>
+	</div>
+}
+else
+{
+	<DetailsComponent OnAddToCart="AddToCart" Appointment="appointmentObj" OnCurrentProduct="currentProduct" />
+}
+
+
+
+@code {
+	// Создаём параметр для хранения ID
+	[Parameter] public int ProductId { get; set; }
+
+	// Создаём объект для хранения заказа
+	public Appointment appointmentObj { get; set; }
+
+	Product currentProduct;
+
+	// Урок 9 (7.1)
+	List<int> listOfShoppingCart = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+		// Создаём новый экземпляр класса заказа и инициализируем начальнуми значениями
+		appointmentObj = new()
+			{
+				AppointmentDate = DateTime.Now
+			};
+		//appointmentObj.Product = await _db.GetSingleProductAsync(ProductId);
+		currentProduct = await _db.GetSingleProductAsync(ProductId);
+	}
+
+	// Урок 9 (7.2)
+	// Заполняем лист товарами из сессий, если такие есть
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+			listOfShoppingCart = await cartStorage.GetFromSession<List<int>>(StaticData.SessionKey);
+	}
+
+	// Урок 9 (5)
+	async Task AddToCart()
+	{
+		// Получаем все данные из сессии (чтобы не переписать их на новые)
+		listOfShoppingCart = await cartStorage.GetFromSession<List<int>>(StaticData.SessionKey);
+
+		if (listOfShoppingCart is null)
+			listOfShoppingCart = new();
+
+		// Вносим новые данные в лист
+		listOfShoppingCart.Add(ProductId);
+
+		// Переписываем данные в сессии
+		await cartStorage.SetForSession(StaticData.SessionKey, listOfShoppingCart);
+
+		StateHasChanged();
+	}
+}

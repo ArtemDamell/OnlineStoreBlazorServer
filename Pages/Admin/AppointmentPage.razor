@@ -1,0 +1,167 @@
+﻿@page "/appointments"
+@*Внедрение пагинации 1/5*@
+@page "/appointments/{PageNumber:int}"
+@inject AppointmentService _appointmentService
+@inject OrderService _orderService
+
+<div class="row">
+	<div class="col text-center">
+		<h1 class="text-info">Appointments</h1>
+	</div>
+</div>
+@if (appointments is null)
+{
+	<div class="row">
+		<div class="col text-center">
+			<img src="https://cdn.dribbble.com/users/108183/screenshots/5331825/loading_xxi.gif" height="200" />
+		</div>
+	</div>
+}
+else if (appointments.Any())
+{
+	<div class="row">
+		<div class="col">
+			<table class="table table-striped bordered">
+				<thead class="bg-info">
+					<tr>
+						<th>ID</th>
+						<th>Customer Name</th>
+						<th>Customer Phone</th>
+						<th>Customer Email</th>
+						<th>Appointment Date</th>
+						<th>Is Confirmed</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var item in appointments)
+					{
+						<tr>
+							<td class="align-middle">@item.Id</td>
+							<td class="align-middle">@item.CustomerName</td>
+							<td class="align-middle">@item.CustomerPhone</td>
+							<td class="align-middle">@item.CustomerEmail</td>
+							<td class="align-middle">@item.AppointmentDate</td>
+							<td class="align-middle">
+								@if (item.IsConfirmed)
+								{
+									<img src='https://pbs.twimg.com/profile_images/694977181290754048/8WUJ2XuE_400x400.png' style='height: 70px' />
+								}
+							</td>
+							<td class="align-middle">
+								<button class="btn btn-success" @onclick="(() => ConfirmAppointment(item))">Confirm</button>
+								<button class="btn btn-primary" @onclick="(() => ShowPaymentDetailsClickHandler(item.Id))">Payment Details</button>
+								<button class="btn btn-warning" @onclick="(() => ShowProductsClickHandler(item.Id))">Show Products</button>
+								<button class="btn btn-danger" @onclick="(() => DeleteAppointment(item))">Delete</button>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+}
+else
+{
+	<div class="row">
+		<div class="col text-center">
+			<img src="https://cdn.dribbble.com/users/1231865/screenshots/11157048/media/bc9427646c632ded563ee076fdc5dfda.jpg?compress=1&resize=800x600" height="200" />
+		</div>
+	</div>
+}
+
+<RenderProducts Items="productsInCurrentApp" Context="OrderDetails" @ref="renderComponent">
+	<Header>
+		<div class="row bg-info position-sticky align-items-center text-center" style="height: 50px">
+			<div class="col">
+				Image
+			</div>
+			<div class="col">
+				Product Name
+			</div>
+			<div class="col">
+				Quantity
+			</div>
+		</div>
+	</Header>
+	<ChildContent>
+		<hr />
+		<div class="row mb-3 align-items-center text-center">
+			<div class="col">
+				<img src="@OrderDetails.Product.Image.ImageToDisplayConverter()" class="img-fluid img-thumbnail" style="height: 100px" />
+			</div>
+			<div class="col">
+				@OrderDetails.Product.Name
+			</div>
+			<div class="col">
+				@OrderDetails.Quantity
+			</div>
+		</div>
+		<hr />
+	</ChildContent>
+</RenderProducts>
+
+<RenderPayments TValue="OrderModel" Item="currentOrder" @ref="renderPayments">
+	<ChildContent>
+		<hr />
+		<div class="row mb-3 align-items-center text-center">
+			<div class="col">
+				@context.PaymentDetails.Id
+			</div>
+			<div class="col">
+				@context.PaymentDetails.PaymentPrice
+			</div>
+			<div class="col">
+				@context.PaymentDetails.PaymentStatus
+			</div>
+		</div>
+		<hr />
+	</ChildContent>
+</RenderPayments>
+
+@code {
+	//Внедрение пагинации 2/5
+	[Parameter] public int PageNumber { get; set; }
+
+	List<Appointment> appointments;
+	List<OrderDetails> productsInCurrentApp;
+	RenderProducts<OrderDetails> renderComponent;
+	RenderPayments<OrderModel> renderPayments;
+	OrderModel currentOrder;
+
+	//Внедрение пагинации 4/5
+	protected override async Task OnParametersSetAsync()
+	{
+		if (PageNumber < 1)
+			PageNumber = 1;
+
+		appointments = await _appointmentService.GetAllAppointmentsAsync(PageNumber, 5);
+	}
+
+	async Task ConfirmAppointment(Appointment appForConfirm)
+	{
+		var result = await _appointmentService.ConfirmAppointmentAsync(appForConfirm.Id);
+
+		appointments.Clear();
+		appointments = await _appointmentService.GetAllAppointmentsAsync();
+	}
+
+	async Task ShowProductsClickHandler(int id)
+	{
+		currentOrder = await _orderService.GetSingeOrderByIdAsync(id);
+		productsInCurrentApp = currentOrder.OrderDetails;
+		renderComponent.ShowCloseModal();
+	}
+
+	async Task ShowPaymentDetailsClickHandler(int id)
+	{
+		currentOrder = await _orderService.GetSingeOrderByIdAsync(id);
+		renderPayments.ShowCloseModal();
+	}
+
+	async Task DeleteAppointment(Appointment appForDeleting)
+	{
+		var result = await _appointmentService.DeleteAppointmentAsync(appForDeleting);
+		appointments = await _appointmentService.GetAllAppointmentsAsync();
+	}
+}

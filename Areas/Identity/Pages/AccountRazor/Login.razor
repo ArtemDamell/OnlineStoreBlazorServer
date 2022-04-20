@@ -1,0 +1,92 @@
+﻿@page "/account/login"
+
+
+
+<h3>Login</h3>
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <div class="row">
+        <div class="col alert alert-success text-center">
+            @message
+        </div>
+    </div>
+}
+<div class="row">
+    <div class="col-md-4">
+        <section>
+            <EditForm Model="@input" OnValidSubmit="@ValidateUser">
+                <DataAnnotationsValidator />
+                <h4>Use a local account to log in.</h4>
+                <hr />
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input @bind="input.Email" class="form-control" />
+                    <ValidationMessage For="(() => input.Email)" class="text-danger" />
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input @bind="input.Password" class="form-control" />
+                    <ValidationMessage For="(() => input.Password)" class="text-danger" />
+                </div>
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label>Remember Me</label>
+                        <input type="checkbox" @bind="@input.RememberMe" class="checkbox" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Log in</button>
+                </div>
+            </EditForm>
+        </section>
+    </div>
+</div>
+
+@code {
+    LoginUserModel input;
+    string message = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        input = new();
+
+        // Clear the existing external cookie to ensure a clean login process
+        //await httpContextAccessor.HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+        //var user = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        //await SignInManager.SignOutAsync();
+
+        //ExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+    }
+
+    void ValidateUser()
+    {
+        // await AuthenticationStateProvider.
+        // This doesn't count login failures towards account lockout
+        // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+        //var result = await SignInManager.PasswordSignInAsync(input.Email, input.Password, input.RememberMe, lockoutOnFailure: false);
+
+        //if (result)
+        //if (result.Succeeded)
+        //{
+        //    message = "Success!";
+        //}
+        //if (result.RequiresTwoFactor)
+        //{
+        //    //return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
+        //    message = "2 factor required!";
+        //}
+        //if (result.IsLockedOut)
+        //{
+        //    //_logger.LogWarning("User account locked out.");
+        //    //return RedirectToPage("./Lockout");
+        //    message = "Banned!";
+        //}
+        //else
+        //{
+        //    //ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+        //    //return Page();
+        //    message = "Invalid login attempt.";
+        //}
+    }
+}

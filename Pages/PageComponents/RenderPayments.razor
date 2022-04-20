@@ -1,0 +1,45 @@
+﻿@typeparam TValue
+
+@if (showPopUp)
+{
+	<div class="modal fade show" tabindex="-1" style="display: block" role="dialog">
+		<div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h3 class="text-info">Payment Info</h3>
+					<button type="button" class="close" @onclick="ShowCloseModal" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="¨row">
+						<div class="col">
+							@if (Item is not null)
+							{
+								@ChildContent(Item)
+							}
+							else
+							{
+								<label>No content existing...</label>
+							}
+
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" @onclick="ShowCloseModal" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-primary">Save changes</button>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+@code {
+	[Parameter] public RenderFragment<TValue> ChildContent { get; set; }
+	[Parameter] public TValue Item { get; set; }
+
+	bool showPopUp = false;
+
+	public void ShowCloseModal() => showPopUp = !showPopUp;
+}

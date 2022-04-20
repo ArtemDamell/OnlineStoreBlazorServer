@@ -1,0 +1,73 @@
+﻿@using Microsoft.AspNetCore.Identity
+
+@if (showModal)
+{
+	<div class="modal fade show" tabindex="-1" style="display: block" role="dialog">
+		<div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+			<div class="modal-content @deleteStyleClass">
+				<div class="modal-header">
+					<h2 class="text-info">@Header</h2>
+					<button type="button" class="close" @onclick="ShowCloseModal" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					@if (Content is null)
+					{
+						<div class="row">
+							<EditForm OnSubmit="ValidateAndSave">
+								<InputText @bind-Value="roleName" class="form-control" placeholder="Enter new role name..."></InputText>
+							</EditForm>
+						</div>
+					}
+					else
+					{
+						<div class="row">
+							<div class="col">
+								Do you sure? Delete @Content ?
+							</div>
+						</div>
+						<div class="row">
+							<div class="col">
+								@*<button class="btn btn-danger" @onclick="DeleteRoleName.InvokeAsync(roleName)">Delete</button>*@
+							</div>
+						</div>
+					}
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" @onclick="ShowCloseModal" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+}
+
+@code {
+	[Parameter] public RenderFragment Header { get; set; }
+	[Parameter] public RenderFragment Content { get; set; }
+	//[Parameter] public IReadOnlyList<IdentityRole> ListItems { get; set; }
+	[Parameter] public EventCallback<string> SaveRoleName { get; set; }
+	[Parameter] public EventCallback<string> DeleteRoleName { get; set; }
+
+	bool showModal;
+	string roleName;
+	string deleteStyleClass = string.Empty;
+
+	public void ShowCloseModal() => showModal = !showModal;
+
+	protected override void OnInitialized()
+	{
+		if (Content is not null)
+		{
+			deleteStyleClass = "alert alert-danger";
+			roleName = Content.ToString();
+		}
+		
+	}
+
+	void ValidateAndSave()
+	{
+		if (string.IsNullOrWhiteSpace(roleName))
+			SaveRoleName.InvokeAsync(roleName);
+	}
+}

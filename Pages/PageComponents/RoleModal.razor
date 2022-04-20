@@ -1,0 +1,52 @@
+﻿@using Microsoft.AspNetCore.Identity
+@if (showPopUp)
+{
+	<div class="modal fade show" tabindex="-1" style="display: block" role="dialog">
+		<EditForm Model="@RoleName" OnValidSubmit="@OnValidSubmit">
+
+			<div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h3 class="text-info">@(RoleName is not null ? "Update" : "Create") Role</h3>
+						<button type="button" class="close" @onclick="OnOpenCloseModal" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<DataAnnotationsValidator />
+						<ValidationSummary />
+
+						<div class="¨row">
+							<div class="col-9">
+								<div class="row py-2">
+									<div class="col-4">
+										Role Name
+									</div>
+									<div class="col-8">
+										<InputText class="form-control" @bind-Value="RoleName.Name" />
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" @onclick="OnOpenCloseModal" class="btn btn-secondary" data-dismiss="modal">Close</button>
+						<button type="submit" class="btn btn-primary">Save changes</button>
+					</div>
+				</div>
+			</div>
+
+		</EditForm>
+	</div>
+}
+
+@code {
+	[Parameter] public IdentityRole RoleName { get; set; }
+	[Parameter] public EventCallback<IdentityRole> OnSubmit { get; set;}
+
+	bool showPopUp;
+
+	public void OnOpenCloseModal() => showPopUp = !showPopUp;
+
+	void OnValidSubmit() => OnSubmit.InvokeAsync(RoleName);
+}

@@ -1,0 +1,128 @@
+﻿@page "/account/register"
+
+@using Microsoft.AspNetCore.Authentication;
+@using Microsoft.AspNetCore.Identity;
+@using Microsoft.AspNetCore.Identity.UI.Services;
+@using Microsoft.AspNetCore.WebUtilities;
+@using System.Text;
+@using System.Text.Encodings.Web;
+
+
+@inject SignInManager<IdentityUser> _signInManager
+@inject UserManager<IdentityUser> _userManager
+@inject NavigationManager _navManager
+@inject IEmailSender _emailSender
+@*Урок 11 (1)*@
+@inject RoleManager<IdentityRole> _roleManager
+
+<div class="row">
+	<div class="col-md-4">
+		<EditForm Model="userModel" OnValidSubmit="@ValidSubmit">
+			<h4>Create a new account.</h4>
+			<hr />
+
+			<DataAnnotationsValidator />
+			<ValidationSummary />
+
+			<div class="form-group">
+				<label>Email: </label>
+				<InputText @bind-Value="userModel.Email" class="form-control" />
+				<ValidationMessage For="@(() => userModel.Email)" class="text-danger"></ValidationMessage>
+			</div>
+			<div class="form-group">
+				<label>First Name: </label>
+				<InputText @bind-Value="userModel.FirstName" class="form-control" />
+				<ValidationMessage For="@(() => userModel.FirstName)" class="text-danger"></ValidationMessage>
+			</div>
+			<div class="form-group">
+				<label>Address: </label>
+				<InputText @bind-Value="userModel.Address" class="form-control" />
+				<ValidationMessage For="@(() => userModel.Address)" class="text-danger"></ValidationMessage>
+			</div>
+			<div class="form-group">
+				<label>Password: </label>
+				<InputText @bind-Value="userModel.Password" type="Password" class="form-control" />
+				<ValidationMessage For="@(() => userModel.Password)" class="text-danger"></ValidationMessage>
+			</div>
+			<div class="form-group">
+				<label>Confirm Password: </label>
+
+				<InputText @bind-Value="userModel.ConfirmPassword" type="Password" class="form-control" />
+				<ValidationMessage For="@(() => userModel.ConfirmPassword)" class="text-danger"></ValidationMessage>
+			</div>
+			<button type="submit" class="btn btn-primary @offTag">Register</button>
+		</EditForm>
+	</div>
+		<div>
+				@if (!string.IsNullOrWhiteSpace(registerMessage))
+				{
+					<div class="row">
+
+						<div class="col alert alert-success text-center">
+							<span>@registerMessage</span>
+						</div>
+
+					</div>
+				}
+		</div>
+</div>
+
+@code {
+	// 1. Добавляем модель и переменные
+	RegisterInputModel userModel = new();
+	string ReturnUrl { get; set; }
+	IList<AuthenticationScheme> ExternalLogins { get; set; }
+
+	string registerMessage = string.Empty;
+	string offTag = string.Empty;
+
+	// Инициализируем External Logins (а-ля OnGet метод)
+	protected override async Task OnInitializedAsync()
+	{
+		ReturnUrl = null;
+		ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+	}
+
+	async Task ValidSubmit()
+	{
+		offTag = "disabled";
+		ReturnUrl ??= _navManager.BaseUri;
+
+		var user = new ApplicationUser { UserName = userModel.Email, Email = userModel.Email, FirstName = userModel.FirstName, Address = userModel.Address };
+		var result = await _userManager.CreateAsync(user, userModel.Password);
+		if (result.Succeeded)
+		{
+			// Урок 11 (4)
+			// Урок 11 (4.1)
+			if (!await _roleManager.RoleExistsAsync(StaticData.UserRole))
+				await _roleManager.CreateAsync(new IdentityRole(StaticData.UserRole));
+
+			// Урок 11 (4.2)
+			await _userManager.AddToRoleAsync(user, StaticData.UserRole);
+
+			registerMessage = "Registration Successful!";
+			StateHasChanged();
+
+			var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+			code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+			var callbackUrl = $"Identity/Account/ConfirmEmail/{user.Id}/{code}";
+
+			await _emailSender.SendEmailAsync(userModel.Email, "Confirm your email",
+				$"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+			if (_userManager.Options.SignIn.RequireConfirmedAccount)
+			{
+				//["returnUrl"] = ReturnUrl.Trim()
+
+				_navManager.NavigateTo($"Identity/Account/RegisterConfirmation?email={user.Email}&returnUrl=%2F", forceLoad: true);
+			}
+			else
+			{
+				await _signInManager.SignInAsync(user, isPersistent: false);
+				_navManager.NavigateTo(ReturnUrl);
+			}
+		}
+		offTag = string.Empty;
+	}
+}

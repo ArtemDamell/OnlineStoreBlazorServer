@@ -1,0 +1,117 @@
+﻿@*
+	Эта инъекция гарантирует что время существования данных в этом компоненте
+	Закончится вместе с жизнью этого компонента
+	ДОМАШНЕЕ ЗАДАНИЕ 5
+*@
+@inject NavigationManager _navManager
+@inject AppointmentService _db
+@inherits OwningComponentBase<AppointmentService>
+
+@using BlazorShop.Merchant
+@using Microsoft.AspNetCore.Http
+
+<div class="row p-2 mx-1 mt-3" style="background-color: #ffdbdb">
+	<div class="col-1">
+		<div class="form-check mb-2">
+			<input class="form-check-input" type="checkbox" value="sameAddress" @onchange="@SameAddressHandler" style="height: 30px; width: 30px;">
+		</div>
+	</div>
+	<div class="col">
+		<label class="form-check-label" style="font-size: 30px">
+			Same Address?
+		</label>
+	</div>
+</div>
+
+<div class="row my-3 mx-1" style="background-color: aliceblue">
+	<EditForm class="col-8" Model="@Appointment" OnValidSubmit="@ValidSubmit">
+		<div class="form-group row">
+			<div class="col-8 offset-4">
+				<DataAnnotationsValidator />
+				<ValidationSummary />
+			</div>
+		</div>
+		<div class="form-group row">
+			<div class="col-4">
+				Name:
+			</div>
+			<div class="col-8">
+				<InputText @bind-Value="@Appointment.CustomerName" class="form-control" />
+			</div>
+		</div>
+		<div class="form-group row">
+			<div class="col-4">
+				Email:
+			</div>
+			<div class="col-8">
+				<InputText type="email" @bind-Value="@Appointment.CustomerEmail" class="form-control" />
+			</div>
+		</div>
+		<div class="form-group row">
+			<div class="col-4">
+				Phone:
+			</div>
+			<div class="col-8">
+				<InputText type="tel" @bind-Value="@Appointment.CustomerPhone" class="form-control" />
+			</div>
+		</div>
+		<div class="form-group row">
+			<div class="col-4">
+				Date:
+			</div>
+			<div class="col-8">
+				<InputDate @bind-Value="@Appointment.AppointmentDate" class="form-control" />
+			</div>
+		</div>
+		<div class="row">
+			<div class="col offset-4">
+				<button @onclick="(() => IsClose.InvokeAsync(false))" class="btn btn-danger form-control">Close</button>
+			</div>
+			<div class="col">
+				<button type="submit" class="btn btn-success form-control">Make Appointment</button>
+			</div>
+		</div>
+	</EditForm>
+
+	<div class="col-3 offset-1 mb-1">
+		<img src="https://monmouthcardiology.com/cmsb/uploads/schedule-your-appointment.png" height="450" class="img-fluid" />
+	</div>
+</div>
+
+@code {
+	[Parameter] public Appointment Appointment { get; set; } = new();
+	[Parameter] public List<Product> Products { get; set; }
+	[Parameter] public EventCallback<bool> IsClose { get; set; }
+
+	bool sameAddress = false;
+
+	async Task ValidSubmit()
+	{
+		var result = await Service.CreateAppointmrntAsync(Appointment, Products);
+
+		if (!result.Equals(0))
+		{
+			_navManager.NavigateTo($"confirm/{result.ToString().ToBase64Encode()}");
+		}
+	}
+
+	async Task SameAddressHandler()
+	{
+		sameAddress = !sameAddress;
+
+		if (sameAddress)
+		{
+			var currentUser = await _db.GetCurrentUserAsync();
+			Appointment.CustomerName = currentUser.FirstName;
+			Appointment.CustomerEmail = currentUser.Email;
+			Appointment.CustomerPhone = currentUser.Phone;
+			Appointment.AppointmentDate = DateTime.Now.AddDays(14);
+		}
+		else
+		{
+			Appointment = new();
+			Appointment.AppointmentDate = DateTime.Now;
+		}
+		StateHasChanged();
+	}
+}

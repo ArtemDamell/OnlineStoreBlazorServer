@@ -1,0 +1,121 @@
+﻿@*Урок 10 (2)*@
+@page "/shoppingcart"
+@using BlazorShop.Data.DTOs
+
+@inject ProtectedLocalStorage cartStorage
+@inject ProductService _db
+@inject NavigationManager _navManager
+@inject AppointmentService _appService
+@*Урок 11 (6)*@
+@*@attribute [Authorize(Roles = StaticData.AdminRole + "," + StaticData.UserRole]*@
+
+<div class="container border rounded p-2">
+	<div class="row">
+		<div class="col">
+			<h1 class="text-info">Shopping Cart</h1>
+		</div>
+	</div>
+	@if (productsAndPrice.Products is null)
+	{
+		<div class="row">
+			<div class="col text-center">
+				<img src="https://cdn.dribbble.com/users/108183/screenshots/5331825/loading_xxi.gif" height="200" />
+			</div>
+		</div>
+	}
+	else if (productsAndPrice.Products.Count == 0)
+	{
+		<div class="row p-3">
+			<div class="col text-center">
+				<img src="https://cdn.dribbble.com/users/1231865/screenshots/11157048/media/bc9427646c632ded563ee076fdc5dfda.jpg?compress=1&resize=800x600" height="200" />
+			</div>
+		</div>
+	}
+	@if (productsAndPrice.Products.Any())
+	{
+		<div class="row">
+			<div class="col">
+				<div class="table-responsive">
+					<table class="table table-striped border">
+						<thead class="bg-info">
+							<tr>
+								<th></th>
+								<th>Name</th>
+								<th>Category</th>
+								<th>Quantity</th>
+								<th>Price</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							@foreach (var item in productsAndPrice.Products)
+							{
+								<tr>
+									<td><img src="@item.Image.ImageToDisplayConverter()" style="width: 150px; height: 150px;" class="img-fluid img-thumbnail" /></td>
+									<td class="align-middle">@item.Name</td>
+									<td class="align-middle">@item.Category.Name</td>
+									<td class="align-middle">@item.Quantity</td>
+									<td class="align-middle">@string.Format("{0:C}", item.Price)</td>
+									<td class="align-middle"><button class="btn btn-danger" @onclick="(() => RemoveFromCart(item.Id))">Remove</button></td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+				
+				<div class="row my-1">
+					<div class="col-6">
+						<button @onclick="MakeAppointment" class="btn btn-success form-control">Book NOW!</button>
+					</div>
+					<div class="col">
+						<div class="font-weight-bold text-info text-right">Total Price: @string.Format("{0:C}", productsAndPrice?.TotalPrice)</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+
+	@if (makeAppointment)
+	{
+		<AppointmentComponent Appointment="appointmentObj" Products="productsAndPrice.Products" IsClose="CloseForm" />
+	}
+</div>
+
+@code {
+	List<int> listOfShoppingCart;
+	Appointment appointmentObj = new();
+	ProductsAndPrice productsAndPrice = new();
+
+	bool makeAppointment = false;
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			listOfShoppingCart = new();
+			listOfShoppingCart = await cartStorage.GetFromSession<List<int>>(StaticData.SessionKey);
+
+			productsAndPrice = await _appService.MakeTotalPriceAndGetAllProducts(listOfShoppingCart);
+			StateHasChanged();
+		}
+	}
+
+	async Task RemoveFromCart(int id)
+	{
+		listOfShoppingCart.Remove(id);
+		await cartStorage.SetForSession(StaticData.SessionKey, listOfShoppingCart);
+
+		listOfShoppingCart = await cartStorage.GetFromSession<List<int>>(StaticData.SessionKey);
+		productsAndPrice = await _appService.MakeTotalPriceAndGetAllProducts(listOfShoppingCart);
+	}
+
+	void MakeAppointment()
+	{
+		makeAppointment = !makeAppointment;
+	}
+
+	void CloseForm(bool isClose)
+	{
+		makeAppointment = isClose;
+	}
+}

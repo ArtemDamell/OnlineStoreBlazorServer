@@ -1,0 +1,25 @@
+﻿@typeparam TValue
+
+<nav aria-label="Page navigation example">
+	<ul class="pagination justify-content-center">
+		<li class="page-item @((PageNumber <= 1) ? "disabled" : "")">
+			<a class="page-link" href="category/@(PageNumber - 1)" tabindex="-1" aria-disabled="@((PageNumber <= 1) ? "true" : "false")">Previous</a>
+		</li>
+		@for (int i = 1; i <= PageSize + 1; i++)
+		{
+			<li class="page-item @((i == PageNumber) ? "active" : "")">
+				<a class="page-link" href="category/@i">@i</a>
+			</li>
+		} 
+		<li class="page-item @((PageNumber <= TotalCount / PageSize) ? "" : "disabled")">
+			<a class="page-link" href="category/@(PageNumber + 1)" aria-disabled="@((PageNumber <= TotalCount / PageSize) ? "false" : "true")">Next</a>
+		</li>
+	</ul>
+</nav>
+
+@code {
+	[Parameter] public int PageNumber { get; set; }
+	[Parameter] public int PageSize { get; set; } = 3;
+	[Parameter] public int TotalCount { get; set; }
+	[Parameter] public IReadOnlyList<TValue> Items { get; set; }
+}
