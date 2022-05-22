@@ -1,7 +1,7 @@
 ﻿@page "/"
 @inject ProductService _db
 
-<div class="row p-4 border rounded">
+<div class="row py-4 mb-4 mx-2 border rounded product-card">
     @if (products is null)
     {
         <div class="row">
@@ -10,29 +10,29 @@
             </div>
         </div>
     }
-else if (products.Count > 0)
+    else if (products.Any())
     {
-        @foreach (var item in products)
-        {
-            <div class="col-sm-12 col-md-6 col-lg-3">
-                <div class="card mb-3" style="max-width: 18rem;">
-                    <div class="card-header text-center text-primary font-weight-bold">@item.Name</div>
-                    <div class="card-body text-center">
-                        <img src="@item.Image.ImageToDisplayConverter()" class="img-fluid" style="height: 150px" />
-                    </div>
-                    <div class="card-footer">
-                        <div class="row d-flex align-items-center">
-                            <div class="col-12 text-center my-2">
-                                <span class="text-primary font-weight-bold">@string.Format("{0:C}", item.Price)</span>
-                            </div>
-                            <div class="col-12 text-center">
-                                <a class="btn btn-success form-control" href="/details/@item.Id">Details</a>
-                            </div>
-                        </div>
+        <div class="row justify-content-center">
+            
+                @foreach (var item in products)
+                {
+            <div class="col-sm-12 col-md-6 col-lg-3 product-card m-2 p-0">
+
+                <div>
+                    <img src="@item.Image.ImageToDisplayConverter()" class="img-fluid rounded" style="width: 320px; height: 480px;"/>
+                </div>
+                <div class="image-card-footer text-center">
+                    <p class="font-weight-bold">@item.Name</p>
+                    <p>@string.Format("{0:C}", item.Price)</p>
+                    <div class="mb-3 px-5">
+                        <a class="btn btn-outline-primary form-control" href="/details/@item.Id">Details</a>
                     </div>
                 </div>
+
             </div>
-        }
+                }
+            </div>
+        
     }
     else
     {

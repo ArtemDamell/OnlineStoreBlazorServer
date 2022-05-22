@@ -49,6 +49,18 @@ a, .btn-link {
         top: 0.5rem;
     }
 
+.fa-solid {
+    color: #fff;
+    font-size: 20px;
+}
+
+.menu-bg {
+    background: #0014CE;
+    background: -moz-linear-gradient(top, #0014CE 0%, #3303A4 50%, #7001C5 100%);
+    background: -webkit-linear-gradient(top, #0014CE 0%, #3303A4 50%, #7001C5 100%);
+    background: linear-gradient(to bottom, #0014CE 0%, #3303A4 50%, #7001C5 100%);
+    color: #fff !important;
+}
 
 .component-title {
     border: 1px groove #17a2b8;
@@ -76,3 +88,11 @@ a, .btn-link {
         text-decoration: none;
         color: #fff;
     }
+
+.product-card {
+    border: 1px solid #cbcbcb;
+    border-radius: 10px;
+    background-color: #ededed;
+    -webkit-box-shadow: 0px 0px 10px 5px #878787;
+    box-shadow: 0px 0px 10px 5px #878787;
+}

@@ -1,0 +1,116 @@
+﻿@using static BlazorShop.Extensions.SessionExtension
+@inject ProtectedLocalStorage cartStorage
+@implements IDisposable
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark menu-bg">
+    <!-- Container wrapper -->
+    <div class="container-fluid">
+        <!-- Toggle button -->
+        <button class="navbar-toggler"
+                type="button"
+                data-mdb-toggle="collapse"
+                data-mdb-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Collapsible wrapper -->
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <!-- Navbar brand -->
+            <NavLink class="navbar-brand mt-2 mt-lg-0" href="/" Match="NavLinkMatch.All">
+                <img src="/images/LessonsCoreLogo.png"
+                     height="50"
+                     alt="Demonick Logo"
+                     loading="lazy" />
+            </NavLink>
+            <!-- Left links -->
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="category">
+                        Category
+                    </NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="specialtag">
+                        Special Tags
+                    </NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="product">
+                        Products
+                    </NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="appointments">
+                        Appointments
+                    </NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="admin/rolemanager">
+                        Role Manager
+                    </NavLink>
+                </li>
+            </ul>
+            <!-- Left links -->
+        </div>
+        <!-- Collapsible wrapper -->
+        <!-- Right elements -->
+        <div class="d-flex align-items-center">
+            <!-- Icon -->
+            <NavLink class="text-reset me-3" href="/shoppingcart">
+                <i class="fa-solid fa-basket-shopping"></i>
+                @if (productCount > 0)
+                {
+                    <span class="badge rounded-pill badge-notification bg-danger">@productCount</span>
+                }
+            </NavLink>
+
+            <AuthorizeView>
+                <Authorized>
+                    <NavLink href="Identity/Account/Manage" class="text-reset me-3"><i class="fa-solid fa-id-badge"></i></NavLink>
+                    <form method="post" action="Identity/Account/LogOut">
+                        <button type="submit" class="btn btn-floating"><i class="fa-solid fa-right-from-bracket"></i></button>
+                    </form>
+                </Authorized>
+                <NotAuthorized>
+                    <NavLink class="text-reset me-3" href="Account/Register"><i class="fa-solid fa-person-circle-plus"></i></NavLink>
+                    <NavLink class="text-reset me-3" href="Identity/Account/Login"><i class="fa-solid fa-right-to-bracket"></i></NavLink>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
+        <!-- Right elements -->
+    </div>
+    <!-- Container wrapper -->
+</nav>
+<!-- Navbar -->
+
+@code {
+    List<int> shoppingCartList = new();
+    int productCount = 0;
+
+    protected override void OnInitialized()
+    {
+        SessionExtension.NotyfyChanges += ShowChanges;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            shoppingCartList = await cartStorage.GetFromSession<List<int>>(StaticData.SessionKey);
+            productCount = (shoppingCartList is not null && shoppingCartList.Count > 0) ? shoppingCartList.Count : 0;
+            StateHasChanged();
+        }
+    }
+
+    void ShowChanges(int count)
+    {
+        productCount = count;
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose() => SessionExtension.NotyfyChanges -= ShowChanges;
+}

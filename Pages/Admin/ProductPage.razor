@@ -3,7 +3,6 @@
 @inject ProductService _db
 @*Урок 4 (9.1) Подключаем BlazorInputFile*@
 @using BlazorInputFile
-@using System.IO
 @using BlazorShop.Data.Enums
 
 @*Урок 11 (6)*@
@@ -18,9 +17,9 @@
 
 <div class="container-fluid component-title p-4">
     @*Урок 5 (9)*@
-    <AuthorizeView>
+    @*<AuthorizeView>*@
         @*Если будет ошибка компиляции, то добавить <Authorized Context="Auth">*@
-        <Authorized>
+        @*<Authorized>*@
             <div class="row justify-content-between align-items-center">
                 <div class="col-5">
                     <h1 class="text-info">Product List</h1>
@@ -93,15 +92,15 @@
                     </div>
                 </div>
             }
-        </Authorized>
-        <NotAuthorized>
-            <div class="row text-center">
+        @*</Authorized>
+        <NotAuthorized>*@
+            @*<div class="row text-center">
                 <div class="col alert alert-danger">
                     <b style="font-size: 40px">Authorization required!</b>
                 </div>
-            </div>
-        </NotAuthorized>
-    </AuthorizeView>
+            </div>*@
+        @*</NotAuthorized>
+    </AuthorizeView>*@
 
     @if (showPopUp)
     {
