@@ -15,7 +15,7 @@ namespace BlazorShop.Data.Models
         [Range(1, 1000000)]
         public double Price { get; set; }
         public byte[] Image { get; set; }
-        public string ShadeColor { get; set; }
+        public string Description { get; set; }
 
         // Урок 10 (1)
         public int Quantity { get; set; } = 1;

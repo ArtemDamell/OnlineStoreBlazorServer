@@ -1,64 +1,102 @@
 ﻿@*Дополнительный урок по внедрению метаданных 1/1*@
 @*Внедряем ключевые компоненты для метоописания страницы*@
 @*Add a package reference to the Microsoft.AspNetCore.Components.Web.Extensions package (Install-Package Microsoft.AspNetCore.Components.Web.Extensions -Version 5.0.0-preview9.20513.1)
-Include the following script tag <script src="_content/Microsoft.AspNetCore.Components.Web.Extensions/headManager.js"></script>
-Add a @using directive for Microsoft.AspNetCore.Components.Web.Extensions.Head*@
+    Include the following script tag <script src="_content/Microsoft.AspNetCore.Components.Web.Extensions/headManager.js"></script>
+    Add a @using directive for Microsoft.AspNetCore.Components.Web.Extensions.Head*@
 
-<Title Value="@title"></Title> 
+<Title Value="@title"></Title>
 <Meta name="description" content="@description" />
 @*<Link rel="icon" type="image/x-icon" href="/favicon.ico" />*@
 
 
 @* ---------------------------------------------------- *@
 
-<div class="row p-4 border rounded">
-    <div class="col-8">
-        <div class="form-group row">
-            <div class="col-4">
-                Name:
+@*<div class="row p-4 border rounded">
+        <div class="col-8">
+            <div class="form-group row">
+                <div class="col-4">
+                    Name:
+                </div>
+                <div class="col-8">
+                    <input Value="@OnCurrentProduct.Name" class="form-control" readonly />
+                </div>
             </div>
-            <div class="col-8">
-                <input Value="@OnCurrentProduct.Name" class="form-control" readonly />
+            <div class="form-group row">
+                <div class="col-4">
+                    Shade Color:
+                </div>
+                <div class="col-8">
+                    <input Value="@OnCurrentProduct.ShadeColor" class="form-control" readonly />
+                </div>
             </div>
-        </div>
-        <div class="form-group row">
-            <div class="col-4">
-                Shade Color:
+            <div class="form-group row">
+                <div class="col-4">
+                    Price:
+                </div>
+                <div class="col-8">
+                    <input Value="@OnCurrentProduct.Price.ToString()" class="form-control" readonly />
+                </div>
             </div>
-            <div class="col-8">
-                <input Value="@OnCurrentProduct.ShadeColor" class="form-control" readonly />
+            <div class="form-group row">
+                <div class="col-4">
+                    Category Name:
+                </div>
+                <div class="col-8">
+                    <input Value="@OnCurrentProduct.Category.Name" class="form-control" readonly />
+                </div>
             </div>
-        </div>
-        <div class="form-group row">
-            <div class="col-4">
-                Price:
-            </div>
-            <div class="col-8">
-                <input Value="@OnCurrentProduct.Price.ToString()" class="form-control" readonly />
-            </div>
-        </div>
-        <div class="form-group row">
-            <div class="col-4">
-                Category Name:
-            </div>
-            <div class="col-8">
-                <input Value="@OnCurrentProduct.Category.Name" class="form-control" readonly />
-            </div>
-        </div>
-        <div class="form-group row">
-            <div class="col-4">
+            <div class="form-group row">
+                <div class="col-4">
 
-            </div>
-            <div class="col-4">
-                <a href="/" class="btn btn-success form-control">Back to list</a>
-            </div>
-            <div class="col-4">
-                <button @onclick="OnAddToCart" class="btn btn-primary form-control">Add To Cart</button>
+                </div>
+                <div class="col-4">
+                    <a href="/" class="btn btn-success form-control">Back to list</a>
+                </div>
+                <div class="col-4">
+                    <button @onclick="OnAddToCart" class="btn btn-primary form-control">Add To Cart</button>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-3 offset-1 mb-1">
-        <img src="@OnCurrentProduct.Image.ImageToDisplayConverter()" class="img-fluid img-thumbnail" />
+        <div class="col-3 offset-1 mb-1">
+            <img src="@OnCurrentProduct.Image.ImageToDisplayConverter()" class="img-fluid img-thumbnail" />
+        </div>
+    </div>*@
+<div class="details-container">
+    <div class="product-details">
+        <div class="product-details-photo">
+            <div class="photo-container">
+                <div>
+                    <img class="img-details" src="@OnCurrentProduct.Image.ImageToDisplayConverter()" alt="product image">
+                </div>
+            </div>
+        </div>
+        <div class="product-info">
+            <div>
+                <h1 class="product-header-name">@OnCurrentProduct.Name</h1>
+                <hr />
+                <span class="span-details text-warning">PRODUCT ID: @OnCurrentProduct.Id</span>
+            </div>
+            <div class="description-details">
+                <h3 class="text-uppercase h3-details font-weight-bold">Category:</h3>
+                <p class="text-warning">@OnCurrentProduct.Category.Name</p>
+
+                <h3 class="text-uppercase h3-details font-weight-bold">Special Tag:</h3>
+                <p class="text-warning">@OnCurrentProduct.SpecialTag.Name</p>
+
+                @if (!string.IsNullOrWhiteSpace(OnCurrentProduct.Description))
+                {
+                    <h3 class="text-uppercase h3-details font-weight-bold">Description:</h3>
+                    <p class="text-warning">@OnCurrentProduct.Description</p>
+                }
+            </div>
+            <div class="price-details mb-11">
+                <span class="span-details text-uppercase badge badge-success">Price:  @OnCurrentProduct.Price €</span>
+            </div>
+            <div class="btn-group">
+                <NavLink class="btn btn-danger btn-lg" href="/"><i class="fa-solid fa-arrow-left"></i></NavLink>
+                <button class="btn btn-success btn-lg" @onclick="OnAddToCart"><i class="fa-solid fa-cart-plus"></i></button>
+            </div>
+        </div>
     </div>
 </div>
 

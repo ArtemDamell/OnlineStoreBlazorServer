@@ -1,7 +1,7 @@
 ﻿@page "/"
 @inject ProductService _db
-
-<div class="row py-4 mb-4 mx-2 border rounded product-card">
+@*<div class="row py-4 mb-4 mx-2">*@
+<div class="general-container">
     @if (products is null)
     {
         <div class="row">
@@ -12,27 +12,43 @@
     }
     else if (products.Any())
     {
-        <div class="row justify-content-center">
-            
-                @foreach (var item in products)
-                {
-            <div class="col-sm-12 col-md-6 col-lg-3 product-card m-2 p-0">
+        @*<div class="row justify-content-center">*@
+        <div class="row">
+            @foreach (var item in products)
+            {
+                <!--<div class="col-sm-12 col-md-6 col-lg-3 col-xl-2 product-card m-2 p-0">
 
-                <div>
-                    <img src="@item.Image.ImageToDisplayConverter()" class="img-fluid rounded" style="width: 320px; height: 480px;"/>
-                </div>
-                <div class="image-card-footer text-center">
-                    <p class="font-weight-bold">@item.Name</p>
-                    <p>@string.Format("{0:C}", item.Price)</p>
-                    <div class="mb-3 px-5">
-                        <a class="btn btn-outline-primary form-control" href="/details/@item.Id">Details</a>
+                    <div style="display: inline-block;">-->
+                @*<img src="@item.Image.ImageToDisplayConverter()" class="img-fluid rounded" style="width: 320px; height: 480px;"/>*@
+                <!--<img src="@item.Image.ImageToDisplayConverter()" class="img-fluid rounded" style="width: 100%; min-height: 480px; height: 100%;" />
+                    </div>
+                    <div class="image-card-footer text-center">
+                        <p class="font-weight-bold">@item.Name</p>
+                        <p>@string.Format("{0:C}", item.Price)</p>
+                        <div class="mb-3 px-5">
+                            <a class="btn btn-outline-primary form-control" href="/details/@item.Id">Details</a>
+                        </div>
+                    </div>
+
+                </div>-->
+                <div class="col-sm-12 col-md-3 d-flex justify-content-center">
+                    <div class="card">
+                        <div class="card-circle" style="--clr: #4b03b1">
+                            <img src="@item.Image.ImageToDisplayConverter()" class="img-fluid rounded-circle img-preview" />
+                        </div>
+                        <div class="card-content">
+                            <a href="/details/@item.Id"><h2>@item.Name</h2></a>
+                            <hr style="color: white"/>
+                            <p><i class="fa-solid fa-money-bill-wave"></i> Price:  @string.Format("{0:C}", item.Price)</p>
+                            <a class="btn btn-success" href="/details/@item.Id"><i class="fa-solid fa-circle-question"></i> Details</a>
+                        </div>
+                        <img src="@item.Image.ImageToDisplayConverter()" class="img-desc" />
                     </div>
                 </div>
+            }
+        </div>
+        @*</div>*@
 
-            </div>
-                }
-            </div>
-        
     }
     else
     {
@@ -42,8 +58,8 @@
             </div>
         </div>
     }
-
 </div>
+@*</div>*@
 
 @code {
     List<Product> products = new();
