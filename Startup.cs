@@ -30,12 +30,10 @@ namespace BlazorShop
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
 
-            // Урок 11 (2) *************************************
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddRoles<IdentityRole>() // <-- Очень важно для ролей Blazor !!!!!
+                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
-            // *************************************************
-
+           
             services.AddRazorPages();
             services.AddServerSideBlazor();
 
@@ -43,23 +41,16 @@ namespace BlazorShop
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            // Урок 2 (4.1)
             services.AddScoped<CategoryService>();
             services.AddScoped<SpecialTagService>();
-
-            // Урок 4 (7)
             services.AddScoped<ProductService>();
             services.AddScoped<AppointmentService>();
-
-            // Урок 8 (5)
             services.AddAuthentication("Identity.Application").AddCookie();
             services.AddScoped<ProtectedLocalStorage>();
 
-            // Урок 11 (7)
             services.AddHttpContextAccessor();
 
             services.AddScoped<OrderService>();
-
             services.AddScoped<RoleService>();
         }
 

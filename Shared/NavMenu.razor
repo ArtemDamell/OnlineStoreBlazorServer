@@ -1,5 +1,7 @@
 ﻿@using static BlazorShop.Extensions.SessionExtension
+
 @inject ProtectedLocalStorage cartStorage
+
 @implements IDisposable
 
 <div class="top-row pl-4 navbar navbar-dark">
@@ -20,9 +22,8 @@
                 </NotAuthorized>
             </AuthorizeView>
         </li>
-        @*Урок 11 (5)*@
+
         @*<AuthorizeView Roles="@StaticData.AdminRole">*@
-        @*Урок 2 (1) ----------------------------------------------*@
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="category">
                 <span class="oi oi-list-rich" aria-hidden="true"></span> Category
@@ -33,14 +34,11 @@
                 <span class="oi oi-list-rich" aria-hidden="true"></span> Special Tag
             </NavLink>
         </li>
-        @*---------------------------------------------------------*@
-        @*Урок 5 (2) ----------------------------------------------*@
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="product">
                 <span class="oi oi-aperture" aria-hidden="true"></span> Product
             </NavLink>
         </li>
-        @*---------------------------------------------------------*@
         @*</AuthorizeView>*@
 
         <li class="nav-item px-3">
@@ -55,16 +53,13 @@
                 <span class="oi oi-plus" aria-hidden="true"></span> Role Manager
             </NavLink>
         </li>
-        
-        <div class="text-white text-center">
-            <NavLink href="/shoppingcart">
-                <span class="oi oi-cart cart-icon"></span> <label class="cart">@productCount</label>
-            </NavLink>
-        </div>
         @*</AuthorizeView>*@
-
-
     </ul>
+    <div class="text-white text-center">
+        <NavLink href="/shoppingcart">
+            <span class="oi oi-cart cart-icon"></span> <label class="cart">@productCount</label>
+        </NavLink>
+    </div>
 </div>
 
 @code {

@@ -15,27 +15,28 @@ namespace BlazorShop.Data.Services
             _db = db;
         }
 
+        /// <summary>
+        /// Saves the payment details from PayPal response to the database.
+        /// </summary>
+        /// <param name="detailsToSave">The PayPal response containing the payment details.</param>
+        /// <returns>The order model with the payment details.</returns>
         public async Task<OrderModel> SavePaymentDetailsAsync(PayPalResponse detailsToSave)
         {
-            // 1. Конвертируем ID заказа обратно в int
             int appointmentId;
             var isSuccess = Int32.TryParse(detailsToSave.transactions[0].description, out appointmentId);
 
-            // 2. Проверяем на null
             if (!isSuccess)
                 return null;
 
-            // 3. Находим текущий заказ по ID
             var orderFromDb = await _db.Orders
                                         .Include(x => x.Appointment)
                                         .Include(x => x.Customer)
                                         .Include(x => x.OrderDetails)
                                         .FirstOrDefaultAsync(x => x.AppointmentId == appointmentId);
-            // 4. Проверяем на null
+
             if (orderFromDb is null)
                 return null;
 
-            // 5. Создаём новый объект информации об оплате
             PaymentDetails paymentDetails = new();
 
             paymentDetails.PayPalPaymentId = detailsToSave.id;
@@ -46,16 +47,20 @@ namespace BlazorShop.Data.Services
             await _db.PaymentDetails.AddAsync(paymentDetails);
             await _db.SaveChangesAsync();
 
-            // 6. На этом месте у нас есть уже ID деталей оплаты, теперь связываем детали заказа и оплаты
             orderFromDb.PaymentDetailsId = paymentDetails.Id;
             await _db.SaveChangesAsync();
 
             return orderFromDb;
         }
 
-        public async Task<OrderModel> GetSingeOrderByIdAsync(int appointmentId)
+        /// <summary>
+        /// Retrieves a single order by its appointment ID.
+        /// </summary>
+        /// <param name="appointmentId">The appointment ID of the order.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the order model.</returns>
+        public Task<OrderModel> GetSingeOrderByIdAsync(int appointmentId)
         {
-            return await _db.Orders.Include(x => x.Customer)
+            return _db.Orders.Include(x => x.Customer)
                                    .Include(x => x.OrderDetails).ThenInclude(x => x.Product)
                                    .Include(x => x.PaymentDetails)
                                    .FirstOrDefaultAsync(x => x.AppointmentId == appointmentId);

@@ -1,5 +1,4 @@
 ﻿@page "/appointments"
-@*Внедрение пагинации 1/5*@
 @page "/appointments/{PageNumber:int}"
 @inject AppointmentService _appointmentService
 @inject OrderService _orderService
@@ -120,7 +119,6 @@ else
 </RenderPayments>
 
 @code {
-	//Внедрение пагинации 2/5
 	[Parameter] public int PageNumber { get; set; }
 
 	List<Appointment> appointments;
@@ -129,7 +127,6 @@ else
 	RenderPayments<OrderModel> renderPayments;
 	OrderModel currentOrder;
 
-	//Внедрение пагинации 4/5
 	protected override async Task OnParametersSetAsync()
 	{
 		if (PageNumber < 1)

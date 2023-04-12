@@ -13,102 +13,102 @@
 
 @if (currentAppointmentDetails is not null)
 {
-	<div class="row">
-		<div class="col-sm-12 col-md-3">
-			<div class="border border-info p-2">
-				<div class="text-center">
-					<span class="oi oi-person" style="font-size: 200px"></span>
-				</div>
-				<hr />
-				<div>
-					<h3 class="text-center">@currentAppointmentDetails.CustomerName</h3>
-				</div>
-			</div>
-		</div>
-		<div class="col-sm-12 col-md-3">
-			<div class="border border-info p-2">
-				<div class="text-center">
-					<span class="oi oi-envelope-open" style="font-size: 200px"></span>
-				</div>
-				<hr />
-				<div>
-					<h3 class="text-center">@currentAppointmentDetails.CustomerEmail</h3>
-				</div>
-			</div>
-		</div>
-		<div class="col-sm-12 col-md-3">
-			<div class="border border-info p-2">
-				<div class="text-center">
-					<span class="oi oi-phone" style="font-size: 200px"></span>
-				</div>
-				<hr />
-				<div>
-					<h3 class="text-center">@currentAppointmentDetails.CustomerPhone</h3>
-				</div>
-			</div>
-		</div>
-		<div class="col-sm-12 col-md-3">
-			<div class="border border-info p-2">
-				<div class="text-center">
-					<span class="oi oi-calendar" style="font-size: 200px"></span>
-				</div>
-				<hr />
-				<div>
-					<h3 class="text-center">@currentAppointmentDetails.AppointmentDate.ToShortDateString()</h3>
-				</div>
-			</div>
-		</div>
-	</div>
+    <div class="row">
+        <div class="col-sm-12 col-md-3">
+            <div class="border border-info p-2">
+                <div class="text-center">
+                    <span class="oi oi-person" style="font-size: 200px"></span>
+                </div>
+                <hr />
+                <div>
+                    <h3 class="text-center">@currentAppointmentDetails.CustomerName</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-3">
+            <div class="border border-info p-2">
+                <div class="text-center">
+                    <span class="oi oi-envelope-open" style="font-size: 200px"></span>
+                </div>
+                <hr />
+                <div>
+                    <h3 class="text-center">@currentAppointmentDetails.CustomerEmail</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-3">
+            <div class="border border-info p-2">
+                <div class="text-center">
+                    <span class="oi oi-phone" style="font-size: 200px"></span>
+                </div>
+                <hr />
+                <div>
+                    <h3 class="text-center">@currentAppointmentDetails.CustomerPhone</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-3">
+            <div class="border border-info p-2">
+                <div class="text-center">
+                    <span class="oi oi-calendar" style="font-size: 200px"></span>
+                </div>
+                <hr />
+                <div>
+                    <h3 class="text-center">@currentAppointmentDetails.AppointmentDate.ToShortDateString()</h3>
+                </div>
+            </div>
+        </div>
+    </div>
 
-	<div class="row">
-		<div class="col-5 offset-3 mt-3">
-			@if (!string.IsNullOrWhiteSpace(url))
-			{
-				<a href="@url" class="btn btn-success form-control">Pay</a>
-			}
-			else
-			{
-				<label class="text-info">Calculating data...</label>
-			}
-		</div>
-	</div>
+    <div class="row">
+        <div class="col-5 offset-3 mt-3">
+            @if (!string.IsNullOrWhiteSpace(url))
+            {
+                <a href="@url" class="btn btn-success form-control">Pay</a>
+            }
+            else
+            {
+                <label class="text-info">Calculating data...</label>
+            }
+        </div>
+    </div>
 }
 else
 {
-	<div class="row">
-		<div class="col text-center">
-			<img src="https://cdn.dribbble.com/users/108183/screenshots/5331825/loading_xxi.gif" height="200" />
-		</div>
-	</div>
+    <div class="row">
+        <div class="col text-center">
+            <img src="https://cdn.dribbble.com/users/108183/screenshots/5331825/loading_xxi.gif" height="200" />
+        </div>
+    </div>
 }
 
 @code {
-	[Parameter] public string AppointmentId { get; set; }
+    [Parameter] public string AppointmentId { get; set; }
 
-	Appointment currentAppointmentDetails;
-	List<int> listOfShoppingCart;
-	int appointmentId;
-	string url;
-	ProductsAndPrice productsAndPrice = new();
+    Appointment currentAppointmentDetails;
+    List<int> listOfShoppingCart;
+    int appointmentId;
+    string url;
+    ProductsAndPrice productsAndPrice = new();
 
-	protected override async Task OnInitializedAsync()
-	{
-		appointmentId = Convert.ToInt32(AppointmentId.FromBase64Decode());
-		currentAppointmentDetails = await _db.GetCurrentAppointmentAsync(appointmentId);
-	}
+    protected override async Task OnInitializedAsync()
+    {
+        appointmentId = Convert.ToInt32(AppointmentId.FromBase64Decode());
+        currentAppointmentDetails = await _db.GetCurrentAppointmentAsync(appointmentId);
+    }
 
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (firstRender)
-		{
-			listOfShoppingCart = await cartStorage.GetFromSession<List<int>>(StaticData.SessionKey);
-			productsAndPrice = await _db.MakeTotalPriceAndGetAllProducts(listOfShoppingCart);
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            listOfShoppingCart = await cartStorage.GetFromSession<List<int>>(StaticData.SessionKey);
+            productsAndPrice = await _db.MakeTotalPriceAndGetAllProducts(listOfShoppingCart);
 
-			var payPalAPI = new PayPalAPI(_configuration);
-			var stringPrice = productsAndPrice.TotalPrice.ToString("#.##", CultureInfo.InvariantCulture);
-			var conv = double.Parse(stringPrice, CultureInfo.InvariantCulture);
-			url = payPalAPI.getRedirectUrlToPayPal(conv, "USD", appointmentId);
-			StateHasChanged();
-		}
-	}
+            var payPalAPI = new PayPalAPI(_configuration);
+            var stringPrice = productsAndPrice.TotalPrice.ToString("#.##", CultureInfo.InvariantCulture);
+            var conv = double.Parse(stringPrice, CultureInfo.InvariantCulture);
+            url = payPalAPI.getRedirectUrlToPayPal(conv, "USD", appointmentId);
+            StateHasChanged();
+        }
+    }
 }

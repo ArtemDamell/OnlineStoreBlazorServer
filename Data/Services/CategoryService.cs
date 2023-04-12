@@ -4,86 +4,80 @@ using System.Threading.Tasks;
 using BlazorShop.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
-// Урок 1 (6)
 namespace BlazorShop.Data.Services
 {
     public class CategoryService
     {
-        // Урок 1 (6.1) ---------------------------------
         private readonly ApplicationDbContext _db;
 
         public CategoryService(ApplicationDbContext db)
         {
             _db = db;
         }
-        // ----------------------------------------------
 
-        // Урок 1 (6.2) ---------------------------------
-        public async Task<Category> GetSingleCategoryAsync(int categoryId)
-        {
-            // Получаем категорию из базы данных
-            // Возвращаем из метода найденную по ID категорию
-            return await _db.Categories.FindAsync(categoryId);
-        }
-        // ----------------------------------------------
+        /// <summary>
+        /// Retrieves a single category from the database based on the provided categoryId.
+        /// </summary>
+        public async Task<Category> GetSingleCategoryAsync(int categoryId) => await _db.Categories.FindAsync(categoryId);
 
-        // Урок 1 (6.2) ---------------------------------
-        public async Task<List<Category>> GetAllCategoriesAsync()
-        {
-            // 2. Получаем все категории из базы данных
-            // Возвращаем из метода в виде массива типа List
-            return await _db.Categories.ToListAsync();
-        }
-        // ----------------------------------------------
+        /// <summary>
+        /// Retrieves a list of all categories from the database asynchronously.
+        /// </summary>
+        public Task<List<Category>> GetAllCategoriesAsync() => _db.Categories.ToListAsync();
+
+        /// <summary>
+        /// Gets a list of categories from the database, paged according to the given page number and page size.
+        /// </summary>
+        /// <param name="pageNumber">The page number.</param>
+        /// <param name="pageSize">The page size.</param>
+        /// <param name="totalCount">The total count of categories.</param>
+        /// <returns>A list of categories.</returns>
         public List<Category> GetPagedCategoriesAsync(int pageNumber, int pageSize, out int totalCount)
         {
             totalCount = _db.Categories.Count();
             var pages = Task.Run(async () => await _db.Categories.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync()).Result;
             return pages;
         }
-        // Pagination lesson (3)
 
-        // Урок 1 (6.2) ---------------------------------
+        /// <summary>
+        /// Creates a new category in the database.
+        /// </summary>
+        /// <param name="newCategory">The category to be created.</param>
+        /// <returns>True if the category was created successfully, false otherwise.</returns>
         public async Task<bool> CreateCategoryAsync(Category newCategory)
         {
-            // Проверяем полученный параметр на null
-            // И если он null, то возвращаем false (категория не создана)
             if (newCategory is null)
                 return false;
 
-            // В противном случаи, передаём её в сущности Entity для добавления в базу данных
             await _db.Categories.AddAsync(newCategory);
-
-            // Далее, сохраняем новую категорию в базу данных с помощью созданных сущностей Entity
             await _db.SaveChangesAsync();
 
-            // Возвращаем true (категория создана успешно)
             return true;
         }
-        // ----------------------------------------------
 
-        // Урок 1 (6.2) ---------------------------------
+        /// <summary>
+        /// Updates a category in the database.
+        /// </summary>
+        /// <param name="categoryForUpdate">The category to be updated.</param>
+        /// <returns>True if the category was updated, false otherwise.</returns>
         public async Task<bool> UpdateCategoryAsync(Category categoryForUpdate)
         {
-            // Получаем редактируюмаю категорию из базы данных по ID переданной
-            // Это нужно, чтобы Entity Framework знал, какую модель в базе данных и как обновлять
             var categoryFromDb = await _db.Categories.FindAsync(categoryForUpdate.Id);
 
-            // Проверяем полученный параметр на null
-            // И если он null, то возвращаем false (категория не обновлена)
             if (categoryFromDb is null)
                 return false;
 
-            // В противном случаи, обновляем данные в модели из базы данных с помощью переданной модели
-            // Так, как Entity Framework следит за обновлением полученной из базы модели
-            // Нам остаётся обновить данные модели и сказать Entity Framework'у, чтобы он сохранил изменения в базе данных
             categoryFromDb.Name = categoryForUpdate.Name;
             await _db.SaveChangesAsync();
 
             return true;
         }
 
-        // Урок 1 (6.2) ---------------------------------
+        /// <summary>
+        /// Deletes a category from the database.
+        /// </summary>
+        /// <param name="categoryForDelete">The category to delete.</param>
+        /// <returns>True if the category was deleted, false otherwise.</returns>
         public async Task<bool> DeleteCategoryAsync(Category categoryForDelete)
         {
             var categoryFromDb = await _db.Categories.FindAsync(categoryForDelete.Id);
@@ -91,13 +85,10 @@ namespace BlazorShop.Data.Services
             if (categoryFromDb is null)
                 return false;
 
-            // Удаляем из сущьностей Entity найденную в базе категорию
             _db.Categories.Remove(categoryFromDb);
             await _db.SaveChangesAsync();
 
-            // Возвращаем true (категория обновлена успешно)
             return true;
         }
-        // ----------------------------------------------
     }
 }

@@ -1,24 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace BlazorShop.Merchant
 {
-    /* ********************************
-     В этом общем классе будут хранится все данные об ответе от PayPal
-     И о покупателе
-     ОТВЕТ ОТ PAYPAL
-     * *******************************/
     public class PayPalResponse
     {
         public string id { get; set; }
-        // Намерение (купить)
         public string intent { get; set; }
-        // Состояние транзакции (статус: e.g. approved)
         public string state { get; set; }
         public string cart { get; set; }
-        // Связываем модель с покупателем
         public Payer payer { get; set; }
         public Transaction[] transactions { get; set; }
         public DateTime creat_time { get; set; }
@@ -90,7 +79,6 @@ namespace BlazorShop.Merchant
 
         public class Item_List
         {
-            // Если что, продублировать класс под именем ShippingAddress1
             public Shipping_Address1 shipping_address { get; set; }
         }
         public class Shipping_Address1

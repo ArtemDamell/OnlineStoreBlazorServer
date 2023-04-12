@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-// Урок 1 (3)
 namespace BlazorShop.Data.Models
 {
     public class Category

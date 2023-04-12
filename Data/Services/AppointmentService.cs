@@ -5,8 +5,6 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using BlazorShop.Data.DTOs;
 using BlazorShop.Data.Models;
-using BlazorShop.Extensions;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -27,52 +25,39 @@ namespace BlazorShop.Data.Services
             _productService = productService;
         }
 
-        // 1. Create appointment
+        /// <summary>
+        /// Creates an appointment and order with the given parameters.
+        /// </summary>
+        /// <param name="newAppointment">The new appointment to be created.</param>
+        /// <param name="shoppingCartProductList">The list of products associated with the order.</param>
+        /// <returns>The ID of the created appointment.</returns>
         public async Task<int> CreateAppointmrntAsync(Appointment newAppointment, List<Product> shoppingCartProductList)
         {
             if (newAppointment is null)
                 return 0;
-            // Урок 12/2 (4) /////////////////////////////////////
-            // Сохраняем информацию о заказе в базу для генерации и получения ID заказа
 
             _db.Appointments.Add(newAppointment);
             await _db.SaveChangesAsync();
 
-            // Получаем ID пользователя
-            // 1. Получаем объект типа ClaimsPrincipal
             var currentUser = _httpContextAccessor.HttpContext.User;
-
-            // 2. Получаем объект идентификации юзера
             var claimsIdentity = (ClaimsIdentity)_httpContextAccessor.HttpContext.User.Identity;
-
-            // 3. Получаем доступ к объекту юзера
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
 
-            // 4. Получаем ID покупателя
             var userId = claim?.Value;
 
-            // Создаём переменную для хранения ID заказа (OrderId)
             int orderId = 0;
-
-            // Создаём новый экземпляр класса Order
             OrderModel order = new();
 
-            // Заполняем модель данными и сохраняем
             order.AppointmentId = newAppointment.Id;
             order.UserId = userId;
             order.CreatedAt = DateTime.Now;
-
-            // Сохраняем результат в базу для генерации ID заказа
             _db.Orders.Add(order);
             await _db.SaveChangesAsync();
 
-            // Получаем ID заказа для формирования модели деталей
             orderId = order.Id;
 
-            // Добавляем данные в модель
             foreach (var item in shoppingCartProductList)
             {
-                // Объявляем модель деталей заказа OrderDetails
                 OrderDetails details = new();
 
                 details.OrderId = orderId;
@@ -90,21 +75,31 @@ namespace BlazorShop.Data.Services
             return newAppointment.Id;
         }
 
-        public async Task<Appointment> GetCurrentAppointmentAsync(int appointmentId)
-        {
-            return await _db.Appointments.FindAsync(appointmentId);
-        }
+        /// <summary>
+        /// Retrieves the current appointment from the database asynchronously.
+        /// </summary>
+        /// <param name="appointmentId">The ID of the appointment to retrieve.</param>
+        /// <returns>The current appointment.</returns>
+        public async Task<Appointment> GetCurrentAppointmentAsync(int appointmentId) => await _db.Appointments.FindAsync(appointmentId);
 
-        public async Task<List<Appointment>> GetAllAppointmentsAsync()
-        {
-            return await _db.Appointments.ToListAsync();
-        }
+        /// <summary>
+        /// Retrieves a list of all Appointments from the database asynchronously.
+        /// </summary>
+        public Task<List<Appointment>> GetAllAppointmentsAsync() => _db.Appointments.ToListAsync();
 
-        public async Task<List<Appointment>> GetAllAppointmentsAsync(int pageIndex, int pageSize)
-        {
-            return await _db.Appointments.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
-        }
+        /// <summary>
+        /// Gets a list of Appointments from the database asynchronously.
+        /// </summary>
+        /// <param name="pageIndex">The page index.</param>
+        /// <param name="pageSize">The page size.</param>
+        /// <returns>A list of Appointments.</returns>
+        public Task<List<Appointment>> GetAllAppointmentsAsync(int pageIndex, int pageSize) => _db.Appointments.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
 
+        /// <summary>
+        /// Confirms an appointment with the given id.
+        /// </summary>
+        /// <param name="id">The id of the appointment to be confirmed.</param>
+        /// <returns>True if the appointment was successfully confirmed, false otherwise.</returns>
         public async Task<bool> ConfirmAppointmentAsync(int id)
         {
             var appFromDb = await _db.Appointments.FirstOrDefaultAsync(x => x.Id == id);
@@ -117,6 +112,11 @@ namespace BlazorShop.Data.Services
             return true;
         }
 
+        /// <summary>
+        /// Asynchronously deletes an appointment from the database.
+        /// </summary>
+        /// <param name="appForDeleting">The appointment to be deleted.</param>
+        /// <returns>True if the appointment was successfully deleted, false otherwise.</returns>
         public async Task<bool> DeleteAppointmentAsync(Appointment appForDeleting)
         {
             if (appForDeleting is null)
@@ -127,20 +127,24 @@ namespace BlazorShop.Data.Services
             return true;
         }
 
+        /// <summary>
+        /// Retrieves the current user from the database.
+        /// </summary>
+        /// <returns>The current user.</returns>
         public async Task<ApplicationUser> GetCurrentUserAsync()
         {
-            // 2. Получаем объект идентификации юзера
             var claimsIdentity = (ClaimsIdentity)_httpContextAccessor.HttpContext.User.Identity;
-
-            // 3. Получаем доступ к объекту юзера
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-
-            // 4. Получаем ID покупателя
             var userId = claim?.Value;
 
             return await _db.ApplicationUsers.FindAsync(userId);
         }
 
+        /// <summary>
+        /// Calculates the total price of a list of products and returns all the products in the list.
+        /// </summary>
+        /// <param name="listOfShoppingCart">List of products to calculate the total price.</param>
+        /// <returns>A ProductsAndPrice object containing the total price and all the products in the list.</returns>
         public async Task<ProductsAndPrice> MakeTotalPriceAndGetAllProducts(List<int> listOfShoppingCart)
         {
             ProductsAndPrice resultData = new();

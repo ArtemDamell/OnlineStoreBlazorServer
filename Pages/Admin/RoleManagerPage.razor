@@ -1,100 +1,102 @@
 ﻿@page "/admin/rolemanager"
+@*@attribute [Authorize(Roles = StaticData.AdminRole)]*@
+
 @using Microsoft.AspNetCore.Identity
+
 @inject RoleService _db
 
 <div class="row mb-3 border rounded border-info align-items-center p-4">
-	<div class="col text-center">
-		<h1 class="text-info text-left">Role Manager</h1>
-	</div>
-	<div class="col text-right">
-		<button class="btn btn-info" @onclick="AddRole">Add New Role</button>
-	</div>
+    <div class="col text-center">
+        <h1 class="text-info text-left">Role Manager</h1>
+    </div>
+    <div class="col text-right">
+        <button class="btn btn-info" @onclick="AddRole">Add New Role</button>
+    </div>
 </div>
 @if (roles is null)
 {
-	<div class="row alert alert-info">
-		<div class="col">
-			Loading ...
-		</div>
-	</div>
+    <div class="row alert alert-info">
+        <div class="col">
+            Loading ...
+        </div>
+    </div>
 }
 else if (roles.Any())
 {
-	<div class="row">
-		<div class="col">
-			<table class="table table-striped">
-				<thead class="bg-info">
-					<tr>
-						<th>Role Name</th>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody>
-					@foreach (var item in roles)
-					{
-						<tr>
-							<td>@item.Name</td>
-							<td class="text-right">
-								<div class="btn-group">
-									<button class="btn btn-primary" @onclick="(() => EditRole(item))">Edit</button>
-									<button class="btn btn-danger" @onclick="(() => DeleteRole(item.Name))">Delete</button>
-								</div>
-							</td>
-						</tr>
-					}
-				</tbody>
-			</table>
-		</div>
-	</div>
+    <div class="row">
+        <div class="col">
+            <table class="table table-striped">
+                <thead class="bg-info">
+                    <tr>
+                        <th>Role Name</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in roles)
+                    {
+                        <tr>
+                            <td>@item.Name</td>
+                            <td class="text-right">
+                                <div class="btn-group">
+                                    <button class="btn btn-primary" @onclick="(() => EditRole(item))">Edit</button>
+                                    <button class="btn btn-danger" @onclick="(() => DeleteRole(item.Name))">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 }
 else
 {
-	<div class="row alert alert-danger">
-		<div class="col">
-			No roles exists ...
-		</div>
-	</div>
+    <div class="row alert alert-danger">
+        <div class="col">
+            No roles exists ...
+        </div>
+    </div>
 }
 <RoleModal RoleName="@roleName" OnSubmit="@Submit" @ref="modal" />
 
 @code {
-	List<IdentityRole> roles;
-	IdentityRole roleName;
-	//string oldName;
-	RoleModal modal = new();
+    List<IdentityRole> roles;
+    IdentityRole roleName;
+    RoleModal modal = new();
 
-	protected override async Task OnInitializedAsync()
-	{
-		roles = await _db.GetAllRolesAsync();
-	}
+    protected override async Task OnInitializedAsync()
+    {
+        roles = await _db.GetAllRolesAsync();
+    }
 
-	void AddRole()
-	{
-		roleName = new();
-		modal.OnOpenCloseModal();
-	}
+    void AddRole()
+    {
+        roleName = new();
+        modal.OnOpenCloseModal();
+    }
 
-	async void Submit(IdentityRole newRole)
-	{
-		modal.OnOpenCloseModal();
+    async void Submit(IdentityRole newRole)
+    {
+        modal.OnOpenCloseModal();
 
-		if (string.IsNullOrWhiteSpace(newRole.Id))
-			await _db.UpdateRoleByNameAsync(newRole);
-		else
-			await _db.CreateNewRoleAsync(newRole.Name);
+        if (string.IsNullOrWhiteSpace(newRole.Id))
+            await _db.UpdateRoleByNameAsync(newRole);
+        else
+            await _db.CreateNewRoleAsync(newRole.Name);
 
-		roles = await _db.GetAllRolesAsync();
-	}
+        roles = await _db.GetAllRolesAsync();
+    }
 
-	void EditRole(IdentityRole oldRoleName)
-	{
-		roleName = oldRoleName;
-		modal.OnOpenCloseModal();
-	}
+    void EditRole(IdentityRole oldRoleName)
+    {
+        roleName = oldRoleName;
+        modal.OnOpenCloseModal();
+    }
 
-	async Task DeleteRole(string roleName)
-	{
-		await _db.DeleteRoleByNameAsync(roleName);
-		roles = await _db.GetAllRolesAsync();
-	}
+    async Task DeleteRole(string roleName)
+    {
+        await _db.DeleteRoleByNameAsync(roleName);
+        roles = await _db.GetAllRolesAsync();
+    }
 }

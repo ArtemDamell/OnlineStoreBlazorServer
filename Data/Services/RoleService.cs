@@ -16,11 +16,16 @@ namespace BlazorShop.Data.Services
             _roleManager = roleManager;
         }
 
-        public async Task<List<IdentityRole>> GetAllRolesAsync()
-        {
-            return await _db.Roles.ToListAsync();
-        }
+        /// <summary>
+        /// Gets a list of all roles from the database.
+        /// </summary>
+        public Task<List<IdentityRole>> GetAllRolesAsync() => _db.Roles.ToListAsync();
 
+        /// <summary>
+        /// Creates a new role with the given name.
+        /// </summary>
+        /// <param name="roleName">The name of the role to create.</param>
+        /// <returns>True if the role was created successfully, false otherwise.</returns>
         public async Task<bool> CreateNewRoleAsync(string roleName)
         {
             if (await _roleManager.RoleExistsAsync(roleName))
@@ -37,6 +42,11 @@ namespace BlazorShop.Data.Services
                 return false;
         }
 
+        /// <summary>
+        /// Reads a role by its name from the role manager.
+        /// </summary>
+        /// <param name="roleName">The name of the role to read.</param>
+        /// <returns>The role with the given name, or null if no such role exists.</returns>
         public async Task<IdentityRole> ReadRoleByNameAsync(string roleName)
         {
             if (!await _roleManager.RoleExistsAsync(roleName))
@@ -50,6 +60,11 @@ namespace BlazorShop.Data.Services
                 return null;
         }
 
+        /// <summary>
+        /// Updates a role by name asynchronously.
+        /// </summary>
+        /// <param name="roleForUpdate">The role to be updated.</param>
+        /// <returns>A boolean value indicating whether the role was successfully updated.</returns>
         public async Task<bool> UpdateRoleByNameAsync(IdentityRole roleForUpdate)
         {
             var currRole = await _roleManager.FindByIdAsync(roleForUpdate.Id);
@@ -62,6 +77,11 @@ namespace BlazorShop.Data.Services
             return true;
         }
 
+        /// <summary>
+        /// Deletes a role by its name.
+        /// </summary>
+        /// <param name="roleName">The name of the role to delete.</param>
+        /// <returns>True if the role was deleted, false otherwise.</returns>
         public async Task<bool> DeleteRoleByNameAsync(string roleName)
         {
             var role = await _roleManager.FindByNameAsync(roleName);

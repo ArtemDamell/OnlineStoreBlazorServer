@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace BlazorShop.Data.Models
 {
-    // Урок 12/2 (1)
     public class OrderModel
     {
         public int Id { get; set; }

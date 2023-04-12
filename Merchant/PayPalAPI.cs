@@ -14,29 +14,27 @@ namespace BlazorShop.Merchant
 {
     public class PayPalAPI
     {
-        // Создаём бубличную переменную для доступа к конфигурации
-        // Из любого другова класса, но делаем доступной ТОЛЬКО ДЛЯ ЧТЕНИЯ
         public IConfiguration configuration { get; }
-
-        // Присваеваем экземпляр через конструктор
         public PayPalAPI(IConfiguration _configuration)
         {
             configuration = _configuration;
         }
 
+        /// <summary>
+        /// Gets the redirect URL to PayPal for a given payment.
+        /// </summary>
+        /// <param name="total">The total amount of the payment.</param>
+        /// <param name="currency">The currency of the payment.</param>
+        /// <param name="appointmentId">The ID of the appointment.</param>
+        /// <returns>The redirect URL to PayPal.</returns>
         public string getRedirectUrlToPayPal(double total, string currency, int appointmentId)
         {
-            // Так как на этом этапе может возникнуть ошибка
-            // Заключаем всё в конструкцию TRY/CATCH
             try
             {
                 return Task.Run(async () =>
                 {
-                    // Конфигурируем HTTP запрос для PayPal
                     HttpClient http = GetPayPalHttpClient();
-                    // Получаем токен доступа к магазину
                     PayPalAccessToken accessToken = await GetPayPalAccessTokenAsync(http);
-                    // Сохраняем результат ответа от PayPal
                     PayPalRequest createdPayment = await CreatePayPalPaymentAsync(http, accessToken, total, currency, appointmentId);
                     return createdPayment.links.First(x => x.rel == "approval_url").href;
                 }).Result;
@@ -48,6 +46,12 @@ namespace BlazorShop.Merchant
             }
         }
 
+        /// <summary>
+        /// Executes a PayPal payment with the given paymentId and payerId.
+        /// </summary>
+        /// <param name="paymentId">The paymentId of the payment to be executed.</param>
+        /// <param name="payerId">The payerId of the payment to be executed.</param>
+        /// <returns>A PayPalResponse object containing the response from the PayPal API.</returns>
         public async Task<PayPalResponse> exequtedPayment(string paymentId, string payerId)
         {
             try
@@ -63,6 +67,10 @@ namespace BlazorShop.Merchant
             }
         }
 
+        /// <summary>
+        /// Creates an HttpClient with the PayPal API URL and a timeout of 30 seconds.
+        /// </summary>
+        /// <returns>An HttpClient with the PayPal API URL and a timeout of 30 seconds.</returns>
         private HttpClient GetPayPalHttpClient()
         {
             string paypalConfig = configuration["PayPal:urlAPI"];
@@ -76,6 +84,11 @@ namespace BlazorShop.Merchant
             return http;
         }
 
+        /// <summary>
+        /// Gets the PayPal access token asynchronously.
+        /// </summary>
+        /// <param name="http">The HTTP client.</param>
+        /// <returns>The PayPal access token.</returns>
         private async Task<PayPalAccessToken> GetPayPalAccessTokenAsync(HttpClient http)
         {
             byte[] bytes = Encoding.GetEncoding("iso-8859-1")
@@ -98,6 +111,15 @@ namespace BlazorShop.Merchant
             return accessToken;
         }
 
+        /// <summary>
+        /// Creates a PayPal payment request for a given appointment.
+        /// </summary>
+        /// <param name="http">The HttpClient to use for the request.</param>
+        /// <param name="accessToken">The PayPal access token.</param>
+        /// <param name="total">The total amount of the payment.</param>
+        /// <param name="currency">The currency of the payment.</param>
+        /// <param name="appointmentId">The ID of the appointment.</param>
+        /// <returns>The created PayPal payment request.</returns>
         private async Task<PayPalRequest> CreatePayPalPaymentAsync(HttpClient http, PayPalAccessToken accessToken, double total, string currency, int appointmentId)
         {
             HttpRequestMessage request = new(HttpMethod.Post, "v1/payments/payment");
@@ -135,6 +157,14 @@ namespace BlazorShop.Merchant
             return createdPaypalPayment;
         }
 
+        /// <summary>
+        /// Executes a PayPal payment with the given paymentId and payerId.
+        /// </summary>
+        /// <param name="http">The HttpClient to use for the request.</param>
+        /// <param name="accessToken">The access token to use for authentication.</param>
+        /// <param name="paymentId">The paymentId of the payment to execute.</param>
+        /// <param name="payerId">The payerId of the payment to execute.</param>
+        /// <returns>The response from the PayPal API.</returns>
         async Task<PayPalResponse> ExecutePaypalPaymentAsync(HttpClient http, PayPalAccessToken accessToken, string paymentId, string payerId)
         {
             HttpRequestMessage request = new(HttpMethod.Post, $"v1/payments/payment/{paymentId}/execute");

@@ -4,10 +4,8 @@
 @inject CategoryService categoryServices
 @inject NavigationManager _navManager
 
-@*Урок 11 (6)*@
 @*@attribute [Authorize(Roles = StaticData.AdminRole)]*@
 
-@*Создаём заголовок и кнопку добавления категорий*@
 <div class="container-fluid component-title p-4">
 	<div class="row justify-content-between align-items-center">
 		<div class="col-5">
@@ -23,7 +21,6 @@
 
 	@if (categories is null)
 	{
-		// Если null, то выводим блок информации о загрузке данных
 		<div class="row">
 			<div class="col text-center">
 				<img src="https://cdn.dribbble.com/users/108183/screenshots/5331825/loading_xxi.gif" height="200" />
@@ -65,7 +62,6 @@
 							<td>@item.Name</td>
 							<td class="text-right">
 								<button type="button" @onclick="(() => EditCategory(item))" class="btn btn-primary">Edit</button>
-								@*Урок 3 (8)*@
 								<button type="button" @onclick="(() => DeleteCategory(item))" class="btn btn-danger">Delete</button>
 							</td>
 						</tr>
@@ -92,20 +88,17 @@
 	@if (showPopUp)
 	{
 		<div class="modal fade show" tabindex="-1" style="display: block" role="dialog">
-			@*Урок 3 (1)*@
 			<EditForm Model="@categoryObj" OnValidSubmit="@ValidSubmit">
 
 				<div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
 					<div class="modal-content">
 						<div class="modal-header">
-							@*Урок 3 (6.3)*@
 							<h3 class="text-info">@(!categoryObj.Id.Equals(0) ? "Update" : "Create") Category</h3>
 							<button type="button" class="close" @onclick="ClosePopUp" data-dismiss="modal" aria-label="Close">
 								<span aria-hidden="true">&times;</span>
 							</button>
 						</div>
 						<div class="modal-body">
-							@*Урок 3 (4)*@
 							<DataAnnotationsValidator />
 							<ValidationSummary />
 
@@ -135,43 +128,35 @@
 </div>
 
 @code {
-	// Pagination ------------------------------------
 	[Parameter] public int PageNumber { get; set; }
 	int totalCount;
 	int pageSize = 3;
-	// -----------------------------------------------
 
-	// Урок 2 (5.1) Создаём лист для хранения категорий
 	List<Category> categories;
 
 	Category categoryObj;
 	bool showPopUp = false;
 
-	// Урок 2 (5.2) Заполняем лист данными при инициализации компонента
 	protected override void OnParametersSet()
 	{
 		if (PageNumber < 1) PageNumber = 1;
-		// Заполняем лист данными с помощью внедрённой зависимости
 		categories = categoryServices.GetPagedCategoriesAsync(PageNumber, pageSize, out totalCount);
 	}
 
 	void AddNewCategory()
 	{
 		categoryObj = new();
-		// Урок 3 (6.1)
 		categoryObj.Id = 0;
 
 		showPopUp = true;
 	}
 
-	// Урок 3 (6)
 	void EditCategory(Category catForEdit)
 	{
 		categoryObj = catForEdit;
 		showPopUp = true;
 	}
 
-	// Урок 3 (8)
 	async Task DeleteCategory(Category catForDelete)
 	{
 		bool result;
@@ -179,10 +164,7 @@
 
 		if (result)
 		{
-			// Очищаем список категорий
 			categories.Clear();
-
-			// Обновляем список категорий для обновления таблицы
 			categories = categoryServices.GetPagedCategoriesAsync(PageNumber, pageSize, out totalCount);
 		}
 	}
@@ -192,26 +174,19 @@
 		showPopUp = false;
 	}
 
-	// Урок 3 (3)
 	async Task ValidSubmit()
 	{
-		// 1 создаём переменную для хранения результата сохранения категории
 		bool result;
 
-		// 2 скрываем PopUp
 		showPopUp = false;
 
-		// Урок 3 (6.2)
 		if (categoryObj.Id.Equals(0))
 		{
-			// 3 Вызываем метод сохранения и получаем результат
 			result = await categoryServices.CreateCategoryAsync(categoryObj);
 		}
 		else
 			result = await categoryServices.UpdateCategoryAsync(categoryObj);
 
-
-		// 4 Обновляем список категорий
 		categories = categoryServices.GetPagedCategoriesAsync(PageNumber, pageSize, out totalCount);
 	}
 }

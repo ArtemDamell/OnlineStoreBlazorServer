@@ -7,21 +7,18 @@ namespace BlazorShop.StaticData
 {
     public static class InputImageHandler
     {
+        /// <summary>
+        /// Handles the image by copying it to a MemoryStream and returning the byte array.
+        /// </summary>
+        /// <param name="files">The files to be handled.</param>
+        /// <returns>The byte array of the image.</returns>
         public static async Task<byte[]> HandleImage(IFileListEntry[] files)
         {
-            // Заносим файл в новую локальную переменную
             var file = files.FirstOrDefault();
-
-            // Проверяем, найдено ли изображение
             if (file is not null)
             {
-                // Создает поток, резервным хранилищем которого является память.
                 MemoryStream memoryStream = new();
-
-                // Копируем изображение в этот поток
                 await file.Data.CopyToAsync(memoryStream);
-
-                // Записываем данные из потока  локальную переменную
                 var ImageUploaded = memoryStream.ToArray();
                 return ImageUploaded;
             }

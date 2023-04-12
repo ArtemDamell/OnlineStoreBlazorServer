@@ -4,38 +4,34 @@ using System.Threading.Tasks;
 using BlazorShop.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
-// Урок 1 (6)
 namespace BlazorShop.Data.Services
 {
     public class SpecialTagService
     {
-        // Урок 1 (6.1) ---------------------------------
         private readonly ApplicationDbContext _db;
 
         public SpecialTagService(ApplicationDbContext db)
         {
             _db = db;
         }
-        // ----------------------------------------------
 
-        // Урок 1 (6.2) ---------------------------------
-        public async Task<SpecialTag> GetSingleSpecialTagAsync(int specialTagId)
-        {
-            // Получаем категорию из базы данных
-            // Возвращаем из метода найденную по ID категорию
-            return await _db.SpecialTags.FindAsync(specialTagId);
-        }
-        // ----------------------------------------------
+        /// <summary>
+        /// Retrieves a single SpecialTag from the database based on the provided SpecialTagId.
+        /// </summary>
+        public async Task<SpecialTag> GetSingleSpecialTagAsync(int specialTagId) => await _db.SpecialTags.FindAsync(specialTagId);
 
-        // Урок 1 (6.2) ---------------------------------
-        public async Task<List<SpecialTag>> GetAllSpecialTagsAsync()
-        {
-            // 2. Получаем все категории из базы данных
-            // Возвращаем из метода в виде массива типа List
-            return await _db.SpecialTags.ToListAsync();
-        }
-        // ----------------------------------------------
+        /// <summary>
+        /// Gets a list of all special tags from the database asynchronously.
+        /// </summary>
+        public Task<List<SpecialTag>> GetAllSpecialTagsAsync() => _db.SpecialTags.ToListAsync();
 
+        /// <summary>
+        /// Gets a page of SpecialTags from the database.
+        /// </summary>
+        /// <param name="pageNumber">The page number.</param>
+        /// <param name="pageSize">The page size.</param>
+        /// <param name="totalCount">The total count of SpecialTags.</param>
+        /// <returns>A list of SpecialTags.</returns>
         public List<SpecialTag> GetPagedSpecialTagsAsync(int pageNumber, int pageSize, out int totalCount)
         {
             totalCount = _db.SpecialTags.Count();
@@ -43,47 +39,45 @@ namespace BlazorShop.Data.Services
             return pages;
         }
 
-        // Урок 1 (6.2) ---------------------------------
+        /// <summary>
+        /// Creates a new SpecialTag in the database.
+        /// </summary>
+        /// <param name="newSpecialTag">The SpecialTag to be created.</param>
+        /// <returns>True if the SpecialTag was created successfully, false otherwise.</returns>
         public async Task<bool> CreateSpecialTagAsync(SpecialTag newSpecialTag)
         {
-            // Проверяем полученный параметр на null
-            // И если он null, то возвращаем false (категория не создана)
             if (newSpecialTag is null)
                 return false;
 
-            // В противном случаи, передаём её в сущности Entity для добавления в базу данных
             await _db.SpecialTags.AddAsync(newSpecialTag);
-
-            // Далее, сохраняем новую категорию в базу данных с помощью созданных сущностей Entity
             await _db.SaveChangesAsync();
 
-            // Возвращаем true (категория создана успешно)
             return true;
         }
-        // ----------------------------------------------
 
-        // Урок 1 (6.2) ---------------------------------
+        /// <summary>
+        /// Updates a SpecialTag in the database.
+        /// </summary>
+        /// <param name="specialTagsForUpdate">The SpecialTag to be updated.</param>
+        /// <returns>True if the update was successful, false otherwise.</returns>
         public async Task<bool> UpdateSpecialTagAsync(SpecialTag specialTagsForUpdate)
         {
-            // Получаем редактируюмаю категорию из базы данных по ID переданной
-            // Это нужно, чтобы Entity Framework знал, какую модель в базе данных и как обновлять
             var specialTagFromDb = await _db.SpecialTags.FindAsync(specialTagsForUpdate.Id);
 
-            // Проверяем полученный параметр на null
-            // И если он null, то возвращаем false (категория не обновлена)
             if (specialTagFromDb is null)
                 return false;
 
-            // В противном случаи, обновляем данные в модели из базы данных с помощью переданной модели
-            // Так, как Entity Framework следит за обновлением полученной из базы модели
-            // Нам остаётся обновить данные модели и сказать Entity Framework'у, чтобы он сохранил изменения в базе данных
             specialTagFromDb.Name = specialTagsForUpdate.Name;
             await _db.SaveChangesAsync();
 
             return true;
         }
 
-        // Урок 1 (6.2) ---------------------------------
+        /// <summary>
+        /// Deletes a SpecialTag from the database.
+        /// </summary>
+        /// <param name="specialTagsForDelete">The SpecialTag to delete.</param>
+        /// <returns>True if the SpecialTag was deleted, false otherwise.</returns>
         public async Task<bool> DeleteSpecialTagAsync(SpecialTag specialTagsForDelete)
         {
             var specialTagFromDb = await _db.SpecialTags.FindAsync(specialTagsForDelete.Id);
@@ -91,13 +85,10 @@ namespace BlazorShop.Data.Services
             if (specialTagFromDb is null)
                 return false;
 
-            // Удаляем из сущьностей Entity найденную в базе категорию
             _db.SpecialTags.Remove(specialTagFromDb);
             await _db.SaveChangesAsync();
 
-            // Возвращаем true (категория обновлена успешно)
             return true;
         }
-        // ----------------------------------------------
     }
 }

@@ -1,106 +1,82 @@
-﻿@*Урок 4 (9.0) Назначаем маршрут до страницы*@
-@page "/product"
+﻿@page "/product"
 @inject ProductService _db
-@*Урок 4 (9.1) Подключаем BlazorInputFile*@
+
 @using BlazorInputFile
 @using BlazorShop.Data.Enums
 
-@*Урок 11 (6)*@
 @*@attribute [Authorize(Roles = StaticData.AdminRole)]*@
-@*Урок 5 (10)*@
-@*
-    Если надо подступиться к данным пользователя в разметке, то необходимо
-    внедрить зависимость и пользоваться этим классом
-*@
-@*@inject AuthenticationStateProvider authStateProv*@
-
 
 <div class="container-fluid component-title p-4">
-    @*Урок 5 (9)*@
-    @*<AuthorizeView>*@
-        @*Если будет ошибка компиляции, то добавить <Authorized Context="Auth">*@
-        @*<Authorized>*@
-            <div class="row justify-content-between align-items-center">
-                <div class="col-5">
-                    <h1 class="text-info">Product List</h1>
-                </div>
-                <div class="col-3 text-right">
-                    <button type="button" @onclick="AddNewProduct" class="btn btn-info form-control">
-                        Add New Product
-                    </button>
-                </div>
+    <div class="row justify-content-between align-items-center">
+        <div class="col-5">
+            <h1 class="text-info">Product List</h1>
+        </div>
+        <div class="col-3 text-right">
+            <button type="button" @onclick="AddNewProduct" class="btn btn-info form-control">
+                Add New Product
+            </button>
+        </div>
+    </div>
+
+
+    @if (products is null)
+    {
+        <div class="row">
+            <div class="col text-center">
+                <img src="https://cdn.dribbble.com/users/108183/screenshots/5331825/loading_xxi.gif" height="200" />
             </div>
-
-
-            @if (products is null)
-            {
-                <div class="row">
-                    <div class="col text-center">
-                        <img src="https://cdn.dribbble.com/users/108183/screenshots/5331825/loading_xxi.gif" height="200" />
-                    </div>
-                </div>
-            }
-            else if (products.Count > 0)
-            {
-                <div class="row pt-4 table-r">
-                    <table class="table table-striped">
-                        <thead class="bg-info">
-                            <tr>
-                                @*Домашнее Задание 3 Добавляем новые свойства*@
-                                <th>Image</th>
-                                <th>Product Name</th>
-                                <th>Price</th>
-                                <th>Category</th>
-                                <th>Special Tag</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in products)
-                            {
-                                <tr>
-                                    @*Домашнее Задание 3 Добавляем новые свойства*@
-                                    <td><img src="@item.Image.ImageToDisplayConverter()" style="height: 100px" class="img-fluid" /></td>
-                                    <td class="align-middle">@item.Name</td>
-                                    <td class="align-middle">@item.Price</td>
-                                    <td class="align-middle">@item.Category.Name</td>
-                                    <td class="align-middle">@item.SpecialTag.Name</td>
-                                    <td class="text-right align-middle">
-                                        <button type="button" @onclick="(() => EditProduct(item))" class="btn btn-primary">Edit</button>
-                                        <button type="button" @onclick="(() => DeleteProduct(item))" class="btn btn-danger">Delete</button>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                        <tfoot>
-                            <tr class="text-right">
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td>Products count: @products.Count</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            }
-            else
-            {
-                <div class="row">
-                    <div class="col text-center">
-                        <img src="https://cdn.dribbble.com/users/1231865/screenshots/11157048/media/bc9427646c632ded563ee076fdc5dfda.jpg?compress=1&resize=800x600" height="200" />
-                    </div>
-                </div>
-            }
-        @*</Authorized>
-        <NotAuthorized>*@
-            @*<div class="row text-center">
-                <div class="col alert alert-danger">
-                    <b style="font-size: 40px">Authorization required!</b>
-                </div>
-            </div>*@
-        @*</NotAuthorized>
-    </AuthorizeView>*@
+        </div>
+    }
+    else if (products.Count > 0)
+    {
+        <div class="row pt-4 table-r">
+            <table class="table table-striped">
+                <thead class="bg-info">
+                    <tr>
+                        <th>Image</th>
+                        <th>Product Name</th>
+                        <th>Price</th>
+                        <th>Category</th>
+                        <th>Special Tag</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in products)
+                    {
+                        <tr>
+                            <td><img src="@item.Image.ImageToDisplayConverter()" style="height: 100px" class="img-fluid" /></td>
+                            <td class="align-middle">@item.Name</td>
+                            <td class="align-middle">@item.Price</td>
+                            <td class="align-middle">@item.Category.Name</td>
+                            <td class="align-middle">@item.SpecialTag.Name</td>
+                            <td class="text-right align-middle">
+                                <button type="button" @onclick="(() => EditProduct(item))" class="btn btn-primary">Edit</button>
+                                <button type="button" @onclick="(() => DeleteProduct(item))" class="btn btn-danger">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="text-right">
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>Products count: @products.Count</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col text-center">
+                <img src="https://cdn.dribbble.com/users/1231865/screenshots/11157048/media/bc9427646c632ded563ee076fdc5dfda.jpg?compress=1&resize=800x600" height="200" />
+            </div>
+        </div>
+    }
 
     @if (showPopUp)
     {
@@ -130,24 +106,20 @@
                                         </div>
                                         <div class="col-8">
                                             <InputText class="form-control" @bind-Value="productObj.Name" />
-                                            @*Урок 5 (6)*@
                                             <ValidationMessage For="@(() =>productObj.Name)"></ValidationMessage>
                                         </div>
                                     </div>
-                                    @*Домашнее Задание 3 Добавляем новые свойства*@
                                     <div class="row py-2">
                                         <div class="col-4">
                                             Category Name
                                         </div>
                                         <div class="col-8">
-                                            @*Урок 5 (1)*@
                                             <select @onchange="((args) => SelectionDropDownChanged(args, DropDownType.ProductType))" required class="form-control">
                                                 @foreach (var item in categories)
                                                 {
                                                     <option value="@item.Id" selected="@(item.Id == productObj.CategoryId ? true : false)">@item.Name</option>
                                                 }
                                             </select>
-                                            @*----------*@
                                         </div>
                                     </div>
 
@@ -156,81 +128,72 @@
                                             Special Tag Name
                                         </div>
                                         <div class="col-8">
-                                            @*Урок 5 (1)*@
                                             <select @onchange="((args) => SelectionDropDownChanged(args, DropDownType.SpecialTag))" required class="form-control">
                                                 <option value="" selected disabled>Choose Tag ...</option>
                                                 @foreach (var item in specialTags)
                                                 {
                                                     <option value="@item.Id" selected="@(item.Id == productObj.SpecialTagId ? true : false)">@item.Name</option>
                                                 }
-                                                </select>
-                                        @*----------*@
+                                            </select>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="row py-2">
-                                    <div class="col-4">
-                                        Price
+                                    <div class="row py-2">
+                                        <div class="col-4">
+                                            Price
+                                        </div>
+                                        <div class="col-8">
+                                            <input class="form-control" type="text" @bind="productObj.Price" />
+                                            <ValidationMessage For="@(() =>productObj.Price)"></ValidationMessage>
+                                        </div>
                                     </div>
-                                    <div class="col-8">
-                                        <input class="form-control" type="text" @bind="productObj.Price" />
-                                        @*Урок 5 (6)*@
-                                        <ValidationMessage For="@(() =>productObj.Price)"></ValidationMessage>
+                                    <div class="row py-2">
+                                        <div class="col-4">
+                                            Description
+                                        </div>
+                                        <div class="col-8">
+                                            <InputTextArea class="form-control" type="text" @bind-Value="productObj.Description" />
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="row py-2">
-                                    <div class="col-4">
-                                       Description
+                                    <div class="row py-2">
+                                        <div class="col-4">
+                                            Image
+                                        </div>
+                                        <div class="col-8">
+                                            <BlazorInputFile.InputFile OnChange="HandleSelection"></BlazorInputFile.InputFile>
+                                        </div>
                                     </div>
-                                    <div class="col-8">
-                                        <InputTextArea class="form-control" type="text" @bind-Value="productObj.Description" />
-                                    </div>
-                                </div>
-                                <div class="row py-2">
-                                    <div class="col-4">
-                                        Image
-                                    </div>
-                                    <div class="col-8">
-                                        <BlazorInputFile.InputFile OnChange="HandleSelection"></BlazorInputFile.InputFile>
-                                    </div>
-                                </div>
 
-                            </div>
-                            @*Урок 5 (5)*@
-                            <div class="col-3">
-                                @if (ImageUploaded is not null)
+                                </div>
+                                <div class="col-3">
+                                    @if (ImageUploaded is not null)
                                     {
                                         <img src="@ImageUploaded.ImageToDisplayConverter()" style="width: 100%" class="img-thumbnail img-fluid" />
                                     }
                                 </div>
-                        </div>
+                            </div>
 
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" @onclick="ClosePopUp" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" @onclick="ClosePopUp" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-        </EditForm>
-    </div>
+            </EditForm>
+        </div>
     }
 </div>
 
 @code {
     List<Product> products;
 
-    // Урок 5 (10)
     [CascadingParameter] Task<AuthenticationState> authenticationState { get; set; }
 
-
-    // Урок 4 (9.2)
-    // Так же теперь потребуется лист категорий
     List<Category> categories;
     List<SpecialTag> specialTags;
 
-    // Урок 9.3
     public byte[] ImageUploaded { get; set; }
 
     Product productObj = new();
@@ -238,8 +201,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Урок 5 (10)
-        // Получаем данные пользователя
         var user = (await authenticationState).User;
         var userEmail = user.Identity.Name;
 
@@ -251,19 +212,11 @@
         productObj = new();
         ImageUploaded = null;
 
-        // Урок 9.4
-        // Подгружаем лист категорий
         categories = await _db.GetCategoryListAsync();
-
-        // Подгружаем лист Специальных тэгов HOT FIX
         specialTags = await _db.GetSpecialTagsListAsync();
 
-        // Устанавливаем в объект продукта текущую категорию
         productObj.CategoryId = categories[0].Id;
-
-        // Устанавливаем в объект продукта текущий специальный тэг HOT FIX
         productObj.SpecialTagId = specialTags[0].Id;
-
         productObj.Id = 0;
 
         showPopUp = true;
@@ -273,12 +226,9 @@
     {
         productObj = prodForEdit;
 
-        // Проверяем, есть ли картинка и добавляем её в переменную для отображения
         if (productObj.Image is not null)
             ImageUploaded = productObj.Image;
 
-        // Урок 9.5
-        // Получаем все категории для формирования выпадающего списка категорий
         categories = await _db.GetCategoryListAsync();
         specialTags = await _db.GetSpecialTagsListAsync();
 
@@ -308,14 +258,9 @@
 
         showPopUp = false;
 
-        // Урок 9.6
-        // Логика для изображений
         if (ImageUploaded is not null)
         {
-            // Присваиваем текущей модели картинку
             productObj.Image = ImageUploaded;
-
-            // Не забываем сбросить переменную для картинки
             ImageUploaded = null;
         }
 
@@ -328,8 +273,6 @@
         products = await _db.GetAllProductsAsync();
     }
 
-    // Урок 4 (10)
-    // Эта логика используется в нескольких местах - выносим её в метод
     async Task HandleSelection(IFileListEntry[] files)
     {
         ImageUploaded = await InputImageHandler.HandleImage(files);
@@ -339,15 +282,15 @@
     {
         if (int.TryParse(args.Value.ToString(), out int id))
         {
-            switch(dropDownType)
+            switch (dropDownType)
             {
-                case DropDownType.ProductType :
-                    productObj.CategoryId = id; 
+                case DropDownType.ProductType:
+                    productObj.CategoryId = id;
                     break;
-                case DropDownType.SpecialTag :
+                case DropDownType.SpecialTag:
                     productObj.SpecialTagId = id;
                     break;
-                default : break;
+                default: break;
             }
         }
     }
